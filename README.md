@@ -18,10 +18,15 @@ Create repository:
 @Url("https://api.vk.com/methods/photos.")
 public interface PhotoOperations {
     @Url("get")
-    public List<Photo> getPhotos(@Param("owner_id") Long ownerId, @Param("album_id") Long albumId, @Param("photo_ids") String photoIds);
+    public List<Photo> getPhotos(@Param("owner_id") Long ownerId,
+                                @Param("album_id") Long albumId,
+                                @Param("photo_ids") String photoIds);
 
     @Url("getAlbums")
-    public List<Album> getAlbums(@Param("owner_id") Long ownerId, @Param("ablum_ids") String albumIds, int offset, int count);
+    public List<Album> getAlbums(@Param("owner_id") Long ownerId,
+                                  @Param("ablum_ids") String albumIds,
+                                  int offset,
+                                  int count);
 
 }
 ```
@@ -44,7 +49,7 @@ Now you can use your interface in spring context.
 For example:
 ```java
     @Controller
-    public class PhotoController() {
+    public class PhotoController {
         @Autowired
         private PhotoOperations photoOperations;
 
