@@ -2,9 +2,11 @@ package ru.shadam.restclient.factory;
 
 import org.apache.http.client.ResponseHandler;
 
+import java.lang.reflect.Type;
+
 /**
  * @author sala
  */
 public interface ResponseHandlerFactory {
-    public <T> ResponseHandler<T> getResponseHandler(Class<T> clazz);
+    <T> ResponseHandler<T> getResponseHandler(Type type);
 }

@@ -8,6 +8,7 @@ import org.apache.http.client.ResponseHandler;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,22 +43,22 @@ public class ClientImplFactory implements ResponseHandlerFactory, ExecutionHelpe
     }
 
     @Override
-    public <T> ResponseHandler<T> getResponseHandler(Class<T> clazz) {
-        return new ObjectMapperResponseHandler<>(objectMapper, clazz);
+    public <T> ResponseHandler<T> getResponseHandler(Type type) {
+        return new ObjectMapperResponseHandler<>(objectMapper, type);
     }
 
     static class ObjectMapperResponseHandler<T> implements ResponseHandler<T> {
         private ObjectMapper objectMapper;
-        private Class<T> returnType;
+        private Type returnType;
 
-        public ObjectMapperResponseHandler(ObjectMapper objectMapper, Class<T> returnType) {
+        public ObjectMapperResponseHandler(ObjectMapper objectMapper, Type returnType) {
             this.objectMapper = objectMapper;
             this.returnType = returnType;
         }
 
         @Override
         public T handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-            return objectMapper.readValue(response.getEntity().getContent(), returnType);
+            return objectMapper.readValue(response.getEntity().getContent(), objectMapper.getTypeFactory().constructType(returnType));
         }
     }
 }
