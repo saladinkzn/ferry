@@ -7,10 +7,7 @@ import ru.shadam.restclient.annotations.Url;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author sala
@@ -47,7 +44,7 @@ public class InvocationHandlerFactory {
         //
         final Class<?> returnType = method.getReturnType();
         final ResponseHandler<?> responseHandler = responseHandlerFactory.getResponseHandler(returnType);
-        final Set<String> params = new HashSet<>();
+        final Set<String> params = new LinkedHashSet<>();
         final Map<Integer, String> indexToNameMap = new HashMap<>();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {

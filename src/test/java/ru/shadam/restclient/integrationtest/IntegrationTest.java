@@ -43,7 +43,7 @@ public class IntegrationTest {
         Assert.assertNotNull(photoRepository);
         //
         Assert.assertEquals("GET", value.getMethod());
-        Assert.assertEquals("https://api.vk.com/methods/photos.get?photo_ids=null&owner_id=1&album_id=0", value.getURI().toString());
+        Assert.assertEquals("https://api.vk.com/methods/photos.get?owner_id=1&album_id=0&photo_ids=null", value.getURI().toString());
     }
 
     /**
