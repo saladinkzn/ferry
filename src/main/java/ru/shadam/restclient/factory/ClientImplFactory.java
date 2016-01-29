@@ -15,8 +15,8 @@ import java.util.Set;
  * @author sala
  */
 public class ClientImplFactory implements ResponseHandlerFactory, ExecutionHelperFactory {
-    private final HttpClient httpClient;
-    private final ObjectMapper objectMapper;
+    private HttpClient httpClient;
+    private ObjectMapper objectMapper;
     private final InvocationHandlerFactory invocationHandlerFactory;
 
     public ClientImplFactory(HttpClient httpClient, ObjectMapper objectMapper) {
@@ -25,9 +25,7 @@ public class ClientImplFactory implements ResponseHandlerFactory, ExecutionHelpe
         this.invocationHandlerFactory = new InvocationHandlerFactory(this, this);
     }
 
-    public ClientImplFactory(HttpClient httpClient, ObjectMapper objectMapper, InvocationHandlerFactory invocationHandlerFactory) {
-        this.httpClient = httpClient;
-        this.objectMapper = objectMapper;
+    public ClientImplFactory(InvocationHandlerFactory invocationHandlerFactory) {
         this.invocationHandlerFactory = invocationHandlerFactory;
     }
 
@@ -48,7 +46,7 @@ public class ClientImplFactory implements ResponseHandlerFactory, ExecutionHelpe
         return new ObjectMapperResponseHandler<>(objectMapper, clazz);
     }
 
-    private static class ObjectMapperResponseHandler<T> implements ResponseHandler<T> {
+    static class ObjectMapperResponseHandler<T> implements ResponseHandler<T> {
         private ObjectMapper objectMapper;
         private Class<T> returnType;
 

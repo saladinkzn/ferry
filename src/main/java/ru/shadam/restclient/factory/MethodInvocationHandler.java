@@ -8,10 +8,10 @@ import java.util.Map;
 /**
  * @author sala
  */
-public class MethodInvocationHandler implements InvocationHandler {
+class MethodInvocationHandler implements InvocationHandler {
     private final Map<Method, ExecutionHelper<?>> executorMap;
 
-    public MethodInvocationHandler(Map<Method, ExecutionHelper<?>> methodExecutorMap) {
+    MethodInvocationHandler(Map<Method, ExecutionHelper<?>> methodExecutorMap) {
         this.executorMap = methodExecutorMap;
     }
 

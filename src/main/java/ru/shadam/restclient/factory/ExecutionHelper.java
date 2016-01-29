@@ -38,12 +38,12 @@ class ExecutionHelper<T> {
     }
 
     public ExecutionHelper(HttpClient httpClient, String method, Set<String> parameters, String url, ResponseHandler<T> responseHandler, Map<Integer, String> indexToNameMap) {
-        this.indexToNameMap = Objects.requireNonNull(indexToNameMap);;
-        this.httpClient = Objects.requireNonNull(httpClient);;
+        this.indexToNameMap = Objects.requireNonNull(indexToNameMap);
+        this.httpClient = Objects.requireNonNull(httpClient);
         this.method = Objects.requireNonNull(method);
         this.parameters = Objects.requireNonNull(parameters);
         this.url = Objects.requireNonNull(url);
-        this.responseHandler = Objects.requireNonNull(responseHandler);;
+        this.responseHandler = Objects.requireNonNull(responseHandler);
     }
 
     // for tests mostly
