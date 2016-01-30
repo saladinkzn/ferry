@@ -5,29 +5,28 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
+import ru.shadam.restclient.analyze.MethodContext;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author sala
  */
-public class ClientImplFactory implements ResponseHandlerFactory, ExecutionHelperFactory {
+public class ClientImplFactory implements ResponseHandlerFactory, MethodExecutorFactory {
     private HttpClient httpClient;
     private ObjectMapper objectMapper;
+    private final ResponseHandlerFactory responseHandlerFactory;
     private final InvocationHandlerFactory invocationHandlerFactory;
 
     public ClientImplFactory(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
-        this.invocationHandlerFactory = new InvocationHandlerFactory(this, this);
-    }
-
-    public ClientImplFactory(InvocationHandlerFactory invocationHandlerFactory) {
-        this.invocationHandlerFactory = invocationHandlerFactory;
+        this.responseHandlerFactory = this;
+        this.invocationHandlerFactory = new InvocationHandlerFactory(this);
     }
 
     public <T> T getInterfaceImplementation(Class<T> interfaceClass) {
@@ -38,8 +37,15 @@ public class ClientImplFactory implements ResponseHandlerFactory, ExecutionHelpe
     }
 
     @Override
-    public <T> ExecutionHelper<T> getRequestExecutor(String method, String url, Set<String> params, Map<Integer, String> indexToParamNameMap, ResponseHandler<T> responseHandler) {
-        return new ExecutionHelper<>(httpClient, method, params, url, responseHandler, indexToParamNameMap);
+    public <T> MethodExecutor<T> getRequestExecutor(MethodContext methodContext) {
+        final LinkedHashSet<String> params = methodContext.params();
+        final String url = methodContext.url();
+        final String method = methodContext.method();
+        final Map<Integer, String> indexToParamNameMap = methodContext.indexToParamMap();
+        //
+        final ResponseHandler<T> responseHandler = responseHandlerFactory.getResponseHandler(methodContext.returnType());
+        //
+        return new MethodExecutor<>(httpClient, method, params, url, responseHandler, indexToParamNameMap);
     }
 
     @Override

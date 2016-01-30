@@ -16,8 +16,8 @@ import java.util.Set;
 /**
  * @author sala
  */
-class ExecutionHelper<T> {
-    private static final Logger logger = LoggerFactory.getLogger(ExecutionHelper.class);
+class MethodExecutor<T> {
+    private static final Logger logger = LoggerFactory.getLogger(MethodExecutor.class);
     private final HttpClient httpClient;
     private final String method;
     private final String url;
@@ -37,7 +37,7 @@ class ExecutionHelper<T> {
         return execute(paramToValueMap);
     }
 
-    public ExecutionHelper(HttpClient httpClient, String method, Set<String> parameters, String url, ResponseHandler<T> responseHandler, Map<Integer, String> indexToNameMap) {
+    public MethodExecutor(HttpClient httpClient, String method, Set<String> parameters, String url, ResponseHandler<T> responseHandler, Map<Integer, String> indexToNameMap) {
         this.indexToNameMap = Objects.requireNonNull(indexToNameMap);
         this.httpClient = Objects.requireNonNull(httpClient);
         this.method = Objects.requireNonNull(method);

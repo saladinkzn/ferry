@@ -1,50 +1,70 @@
 package ru.shadam.restclient.factory;
 
-import org.apache.http.client.ResponseHandler;
+import ru.shadam.restclient.analyze.InterfaceContext;
+import ru.shadam.restclient.analyze.MethodContext;
+import ru.shadam.restclient.analyze.impl.DefaultInterfaceContext;
+import ru.shadam.restclient.analyze.impl.DefaultMethodContext;
 import ru.shadam.restclient.annotations.Param;
 import ru.shadam.restclient.annotations.Url;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * @author sala
  */
 public class InvocationHandlerFactory {
-    private final ResponseHandlerFactory responseHandlerFactory;
-    private final ExecutionHelperFactory requestExecutorFactory;
+    private final MethodExecutorFactory methodExecutorFactory;
 
-    public InvocationHandlerFactory(ResponseHandlerFactory responseHandlerFactory, ExecutionHelperFactory requestExecutorFactory) {
-        this.responseHandlerFactory = responseHandlerFactory;
-        this.requestExecutorFactory = requestExecutorFactory;
+    public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory) {
+        this.methodExecutorFactory = methodExecutorFactory;
     }
 
     public InvocationHandler createInvocationHandler(Class<?> clazz) {
-        final Url annotation = clazz.getAnnotation(Url.class);
-        final String baseUrl = annotation.value();
+        final InterfaceContext interfaceContext = getInterfaceContext(clazz);
         //
-        Map<Method, ExecutionHelper<?>> executorMap = new HashMap<>();
+        Map<Method, MethodExecutor<?>> executorMap = new HashMap<>();
         final Method[] methods = clazz.getMethods();
         for(Method method: methods) {
-            executorMap.put(method, processMethod(baseUrl, method));
+            executorMap.put(method, processMethod(interfaceContext, method));
         }
         return new MethodInvocationHandler(executorMap);
     }
 
-    private ExecutionHelper<?> processMethod(String baseUrl, Method method) {
-        final Url methodUrlAnnotation = method.getAnnotation(Url.class);
-        final String methodUrl;
-        if(methodUrlAnnotation != null) {
-            methodUrl = methodUrlAnnotation.value();
-        } else {
-            methodUrl = "";
-        }
+    private MethodExecutor<?> processMethod(InterfaceContext interfaceContext, Method method) {
+        final MethodContext methodContext = getMethodContext(interfaceContext, method);
+        return methodExecutorFactory.getRequestExecutor(methodContext);
+    }
+
+    static InterfaceContext getInterfaceContext(Class<?> clazz) {
+        final Url urlAnnotation = clazz.getAnnotation(Url.class);
+        final String baseUrl = urlAnnotation.value();
         //
-        final Class<?> returnType = method.getReturnType();
-        final ResponseHandler<?> responseHandler = responseHandlerFactory.getResponseHandler(returnType);
-        final Set<String> params = new LinkedHashSet<>();
+        // TODO:
+        final String defaultMethod = "GET";
+        //
+        return new DefaultInterfaceContext(baseUrl, defaultMethod);
+    }
+
+    static MethodContext getMethodContext(InterfaceContext interfaceContext, Method method) {
+        final Type returnType = method.getGenericReturnType();
+        final String url;
+        final Url urlAnnotation = method.getAnnotation(Url.class);
+        if(urlAnnotation == null) {
+            url = null;
+        } else {
+            url = urlAnnotation.value();
+        }
+        // TODO:
+        //
+        final String httpMethod = "GET";
+        //
+        final LinkedHashSet<String> params = new LinkedHashSet<>();
         final Map<Integer, String> indexToNameMap = new HashMap<>();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {
@@ -59,6 +79,6 @@ public class InvocationHandlerFactory {
                 }
             }
         }
-        return requestExecutorFactory.getRequestExecutor("GET", baseUrl + methodUrl, params, indexToNameMap, responseHandler);
+        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType);
     }
 }

@@ -9,9 +9,9 @@ import java.util.Map;
  * @author sala
  */
 class MethodInvocationHandler implements InvocationHandler {
-    private final Map<Method, ExecutionHelper<?>> executorMap;
+    private final Map<Method, MethodExecutor<?>> executorMap;
 
-    MethodInvocationHandler(Map<Method, ExecutionHelper<?>> methodExecutorMap) {
+    MethodInvocationHandler(Map<Method, MethodExecutor<?>> methodExecutorMap) {
         this.executorMap = methodExecutorMap;
     }
 

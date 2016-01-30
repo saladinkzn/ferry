@@ -8,14 +8,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import ru.shadam.restclient.annotations.Param;
-import ru.shadam.restclient.annotations.Url;
 import ru.shadam.restclient.factory.ClientImplFactory;
-import ru.shadam.restclient.integrationtest.dto.Album;
-import ru.shadam.restclient.integrationtest.dto.Photo;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author sala
@@ -46,20 +41,4 @@ public class IntegrationTest {
         Assert.assertEquals("https://api.vk.com/methods/photos.get?owner_id=1&album_id=0&photo_ids=null", value.getURI().toString());
     }
 
-    /**
-     * @author sala
-     */
-    @Url("https://api.vk.com/methods/photos.")
-    public interface PhotoRepository {
-        @Url("get")
-        public List<Photo> getPhotos(@Param("owner_id") Long ownerId,
-                                     @Param("album_id") Long albumId,
-                                     @Param("photo_ids") String photoIds);
-
-        @Url("getAlbums")
-        public List<Album> getAlbums(@Param("owner_id") Long ownerId,
-                                     @Param("ablum_ids") String albumIds,
-                                     int offset,
-                                     int count);
-    }
 }

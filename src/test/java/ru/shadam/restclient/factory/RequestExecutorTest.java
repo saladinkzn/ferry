@@ -17,7 +17,7 @@ public class RequestExecutorTest {
     @Test
     public void testBuildHttpRequest() {
         HttpClient client = Mockito.mock(HttpClient.class);
-        final ExecutionHelper<Object> requestExecutor = new ExecutionHelper<>(
+        final MethodExecutor<Object> requestExecutor = new MethodExecutor<>(
                 client,
                 "GET",
                 Sets.newHashSet("param1", "param2"),
