@@ -7,9 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ru.shadam.restclient.analyze.InterfaceContext;
 import ru.shadam.restclient.analyze.MethodContext;
-import ru.shadam.restclient.annotations.RequestMethod;
-import ru.shadam.restclient.annotations.Param;
-import ru.shadam.restclient.annotations.Url;
+import ru.shadam.restclient.annotations.*;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -101,6 +99,34 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals("GET", overrideMethod.method());
     }
 
+    @Test
+    public void getMethodContextImplicitTest() throws NoSuchMethodException {
+        final Class<ImplicitTestInterface> interfaceClass = ImplicitTestInterface.class;
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(interfaceClass);
+        final MethodContext testMethod1 = InvocationHandlerFactory.getMethodContext(interfaceContext, interfaceClass.getMethod("testMethod1", Long.class));
+        //
+        final Map<String, String> constImplicitParams = testMethod1.constImplicitParams();
+        Assert.assertNotNull(constImplicitParams);
+        Assert.assertTrue(constImplicitParams.containsKey("v"));
+        Assert.assertEquals("5.41", constImplicitParams.get("v"));
+        //
+        final MethodContext testMethod2 = InvocationHandlerFactory.getMethodContext(interfaceContext, ImplicitTestInterface.class.getMethod("testMethod2", Long.class));
+        //
+        final Map<String, String> providedImplicitParams = testMethod2.providedImplicitParams();
+        Assert.assertNotNull(providedImplicitParams);
+        Assert.assertTrue(providedImplicitParams.containsKey("access_token"));
+        Assert.assertEquals("accessTokenProvider", providedImplicitParams.get("access_token"));
+        //
+        final MethodContext testMethod3 = InvocationHandlerFactory.getMethodContext(interfaceContext, ImplicitTestInterface.class.getMethod("testMethod3", Long.class));
+        //
+        final Map<String, String> constImplicitParams1 = testMethod3.constImplicitParams();
+        final Map<String, String> providedImplicitParams1 = testMethod3.providedImplicitParams();
+        Assert.assertTrue(constImplicitParams1.containsKey("v"));
+        Assert.assertEquals("5.41", constImplicitParams1.get("v"));
+        Assert.assertTrue(providedImplicitParams1.containsKey("access_token"));
+        Assert.assertEquals("accessTokenProvider", providedImplicitParams1.get("access_token"));
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -129,5 +155,19 @@ public class InvocationHandlerFactoryTest {
 
         @RequestMethod("GET")
         String overrideMethod();
+    }
+
+    private interface ImplicitTestInterface {
+        @ImplicitParam(paramName = "v", constValue = "5.41")
+        List testMethod1(@Param("owner_id") Long ownerId);
+
+        @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
+        List testMethod2(@Param("owner_id") Long ownerId);
+
+        @ImplicitParams({
+                @ImplicitParam(paramName = "v", constValue = "5.41"),
+                @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
+        })
+        List testMethod3(@Param("owner_id") Long ownerId);
     }
 }

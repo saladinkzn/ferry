@@ -1,5 +1,6 @@
 package ru.shadam.restclient.integrationtest;
 
+import ru.shadam.restclient.annotations.ImplicitParam;
 import ru.shadam.restclient.annotations.Param;
 import ru.shadam.restclient.annotations.Url;
 import ru.shadam.restclient.integrationtest.dto.Album;
@@ -13,6 +14,7 @@ import java.util.List;
 @Url("https://api.vk.com/methods/photos.")
 public interface PhotoRepository {
     @Url("get")
+    @ImplicitParam(paramName = "v", constValue = "5.41")
     public List<Photo> getPhotos(@Param("owner_id") Long ownerId,
                                  @Param("album_id") Long albumId,
                                  @Param("photo_ids") String photoIds);
@@ -22,4 +24,5 @@ public interface PhotoRepository {
                                  @Param("ablum_ids") String albumIds,
                                  int offset,
                                  int count);
+
 }

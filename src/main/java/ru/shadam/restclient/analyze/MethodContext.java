@@ -17,4 +17,8 @@ public interface MethodContext {
     Map<Integer, String> indexToParamMap();
 
     Type returnType();
+
+    Map<String, String> constImplicitParams();
+
+    Map<String, String> providedImplicitParams();
 }

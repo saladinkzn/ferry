@@ -4,17 +4,13 @@ import ru.shadam.restclient.analyze.InterfaceContext;
 import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.analyze.impl.DefaultInterfaceContext;
 import ru.shadam.restclient.analyze.impl.DefaultMethodContext;
-import ru.shadam.restclient.annotations.Param;
-import ru.shadam.restclient.annotations.RequestMethod;
-import ru.shadam.restclient.annotations.Url;
+import ru.shadam.restclient.annotations.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author sala
@@ -97,6 +93,36 @@ public class InvocationHandlerFactory {
                 }
             }
         }
-        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType);
+        final Map<String, String> constImplicitParams = new HashMap<>();
+        final Map<String, String> providedImplicitParams = new HashMap<>();
+        //
+        final List<ImplicitParam> implicitParamList;
+        final ImplicitParams implicitParams = method.getAnnotation(ImplicitParams.class);
+        if(implicitParams != null) {
+            implicitParamList = Arrays.asList(implicitParams.value());
+        } else {
+            final ImplicitParam implicitParam = method.getAnnotation(ImplicitParam.class);
+            if(implicitParam != null) {
+                final ArrayList<ImplicitParam> list = new ArrayList<>();
+                list.add(implicitParam);
+                implicitParamList = list;
+            } else {
+                implicitParamList = new ArrayList<>();
+            }
+        }
+
+        for(ImplicitParam implicitParam : implicitParamList) {
+            if(!"".equals(implicitParam.constValue()) && !"".equals(implicitParam.providerName())) {
+                throw new IllegalStateException("ImplicitParam cannot simultaneously provide constValue and providerName");
+            }
+            if(!"".equals(implicitParam.constValue())) {
+                constImplicitParams.put(implicitParam.paramName(), implicitParam.constValue());
+            } else if (!"".equals(implicitParam.providerName())) {
+                providedImplicitParams.put(implicitParam.paramName(), implicitParam.providerName());
+            }
+
+        }
+        //
+        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams);
     }
 }

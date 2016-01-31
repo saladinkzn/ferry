@@ -18,14 +18,19 @@ public class DefaultMethodContext implements MethodContext {
     private final LinkedHashSet<String> params;
     private final Map<Integer,String> indexToParamMap;
     private final Type returnType;
+    //
+    private final Map<String, String> constImplicitParams;
+    private final Map<String, String> providedImplicitParams;
 
-    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType) {
+    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams) {
         this.url = url;
         this.method = method;
         this.interfaceContext = Objects.requireNonNull(interfaceContext);
         this.params = Objects.requireNonNull(params);
         this.indexToParamMap = Objects.requireNonNull(indexToParamMap);
         this.returnType = Objects.requireNonNull(returnType);
+        this.constImplicitParams = Objects.requireNonNull(constImplicitParams);
+        this.providedImplicitParams = Objects.requireNonNull(providedImplicitParams);
     }
 
     @Override
@@ -51,5 +56,15 @@ public class DefaultMethodContext implements MethodContext {
     @Override
     public Type returnType() {
         return returnType;
+    }
+
+    @Override
+    public Map<String, String> constImplicitParams() {
+        return constImplicitParams;
+    }
+
+    @Override
+    public Map<String, String> providedImplicitParams() {
+        return providedImplicitParams;
     }
 }
