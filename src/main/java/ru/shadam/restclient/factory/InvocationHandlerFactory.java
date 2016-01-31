@@ -43,7 +43,12 @@ public class InvocationHandlerFactory {
 
     static InterfaceContext getInterfaceContext(Class<?> clazz) {
         final Url urlAnnotation = clazz.getAnnotation(Url.class);
-        final String baseUrl = urlAnnotation.value();
+        final String baseUrl;
+        if(urlAnnotation != null) {
+            baseUrl = urlAnnotation.value();
+        } else {
+            baseUrl = "";
+        }
         //
         // TODO:
         final String defaultMethod = "GET";
