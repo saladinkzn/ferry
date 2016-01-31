@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ru.shadam.restclient.analyze.InterfaceContext;
 import ru.shadam.restclient.analyze.MethodContext;
+import ru.shadam.restclient.annotations.RequestMethod;
 import ru.shadam.restclient.annotations.Param;
 import ru.shadam.restclient.annotations.Url;
 
@@ -88,6 +89,18 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals("http://example.com/list", listMethod.url());
     }
 
+    @Test
+    public void getMethodContextMethodTestInterface() throws Exception {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(MethodTestInterface.class);
+        Assert.assertEquals("POST", interfaceContext.defaultMethod());
+        //
+        final MethodContext defaultPostMethod = InvocationHandlerFactory.getMethodContext(interfaceContext, MethodTestInterface.class.getMethod("defaultPostMethod"));
+        Assert.assertEquals("POST", defaultPostMethod.method());
+
+        final MethodContext overrideMethod = InvocationHandlerFactory.getMethodContext(interfaceContext, MethodTestInterface.class.getMethod("overrideMethod"));
+        Assert.assertEquals("GET", overrideMethod.method());
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -108,5 +121,13 @@ public class InvocationHandlerFactoryTest {
 
         @Url("/list")
         public List listMethod();
+    }
+
+    @RequestMethod("POST")
+    private interface MethodTestInterface {
+        String defaultPostMethod();
+
+        @RequestMethod("GET")
+        String overrideMethod();
     }
 }

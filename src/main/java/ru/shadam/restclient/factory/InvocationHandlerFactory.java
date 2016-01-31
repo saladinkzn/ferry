@@ -5,6 +5,7 @@ import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.analyze.impl.DefaultInterfaceContext;
 import ru.shadam.restclient.analyze.impl.DefaultMethodContext;
 import ru.shadam.restclient.annotations.Param;
+import ru.shadam.restclient.annotations.RequestMethod;
 import ru.shadam.restclient.annotations.Url;
 
 import java.lang.annotation.Annotation;
@@ -51,7 +52,13 @@ public class InvocationHandlerFactory {
         }
         //
         // TODO:
-        final String defaultMethod = "GET";
+        final RequestMethod methodAnnotation = clazz.getAnnotation(RequestMethod.class);
+        final String defaultMethod;
+        if(methodAnnotation == null) {
+            defaultMethod = "GET";
+        } else {
+            defaultMethod = methodAnnotation.value();
+        }
         //
         return new DefaultInterfaceContext(baseUrl, defaultMethod);
     }
@@ -67,7 +74,13 @@ public class InvocationHandlerFactory {
         }
         // TODO:
         //
-        final String httpMethod = "GET";
+        final String httpMethod;
+        final RequestMethod methodAnnotation = method.getAnnotation(RequestMethod.class);
+        if(methodAnnotation == null) {
+            httpMethod = interfaceContext.defaultMethod();
+        } else {
+            httpMethod = methodAnnotation.value();
+        }
         //
         final LinkedHashSet<String> params = new LinkedHashSet<>();
         final Map<Integer, String> indexToNameMap = new HashMap<>();
