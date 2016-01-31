@@ -40,13 +40,6 @@ public class InvocationHandlerFactoryTest {
         //
         final List<MethodContext> allValues = methodContextArgumentCaptor.getAllValues();
         Assert.assertEquals(2, allValues.size());
-        //
-        final MethodContext firstCallMethodContext = allValues.get(0);
-        Assert.assertEquals("http://example.com", firstCallMethodContext.url());
-        Assert.assertEquals("GET", firstCallMethodContext.method());
-        Assert.assertTrue(firstCallMethodContext.params().isEmpty());
-        Assert.assertTrue(firstCallMethodContext.indexToParamMap().isEmpty());
-        Assert.assertEquals(new TypeToken<Map<String, Object>>(){}.getType(), firstCallMethodContext.returnType());
     }
 
     @Test
