@@ -45,7 +45,7 @@ public class ClientImplFactory implements ResponseHandlerFactory, MethodExecutor
         //
         final ResponseHandler<T> responseHandler = responseHandlerFactory.getResponseHandler(methodContext.returnType());
         //
-        return new MethodExecutor<>(httpClient, method, params, url, responseHandler, indexToParamNameMap);
+        return new MethodExecutor<>(httpClient, method, url, responseHandler);
     }
 
     @Override
