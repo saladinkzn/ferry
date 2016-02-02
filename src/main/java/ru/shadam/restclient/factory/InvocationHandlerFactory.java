@@ -26,15 +26,27 @@ public class InvocationHandlerFactory {
         final InterfaceContext interfaceContext = getInterfaceContext(clazz);
         //
         Map<Method, MethodExecutor<?>> executorMap = new HashMap<>();
+        Map<Method, Map<Integer, String>> methodIndexToParamMap = new HashMap<>();
+        Map<Method, Map<String, String>> methodImplicitParamsMap = new HashMap<>();
         final Method[] methods = clazz.getMethods();
         for(Method method: methods) {
-            executorMap.put(method, processMethod(interfaceContext, method));
+            final MethodContext methodContext = getMethodContext(interfaceContext, method);
+            executorMap.put(method, processMethod(methodContext));
+            methodIndexToParamMap.put(method, getIndexToParamMap(methodContext));
+            methodImplicitParamsMap.put(method, getImplicitParamsMap(methodContext));
         }
-        return new MethodInvocationHandler(executorMap);
+        return new MethodInvocationHandler(executorMap, methodIndexToParamMap, methodImplicitParamsMap);
     }
 
-    private MethodExecutor<?> processMethod(InterfaceContext interfaceContext, Method method) {
-        final MethodContext methodContext = getMethodContext(interfaceContext, method);
+    private Map<String, String> getImplicitParamsMap(MethodContext methodContext) {
+        return methodContext.constImplicitParams();
+    }
+
+    private Map<Integer, String> getIndexToParamMap(MethodContext methodContext) {
+        return methodContext.indexToParamMap();
+    }
+
+    private MethodExecutor<?> processMethod(MethodContext methodContext) {
         return methodExecutorFactory.getRequestExecutor(methodContext);
     }
 
@@ -79,7 +91,7 @@ public class InvocationHandlerFactory {
         }
         //
         final LinkedHashSet<String> params = new LinkedHashSet<>();
-        final Map<Integer, String> indexToNameMap = new HashMap<>();
+        final Map<Integer, String> indexToNameMap = new LinkedHashMap<>();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {
             final Annotation[] parameterAnnotationArray = parameterAnnotations[paramIndex];

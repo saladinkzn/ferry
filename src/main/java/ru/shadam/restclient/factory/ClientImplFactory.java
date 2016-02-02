@@ -10,8 +10,6 @@ import ru.shadam.restclient.analyze.MethodContext;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.LinkedHashSet;
-import java.util.Map;
 
 /**
  * @author sala
@@ -38,14 +36,12 @@ public class ClientImplFactory implements ResponseHandlerFactory, MethodExecutor
 
     @Override
     public <T> MethodExecutor<T> getRequestExecutor(MethodContext methodContext) {
-        final LinkedHashSet<String> params = methodContext.params();
         final String url = methodContext.url();
         final String method = methodContext.method();
-        final Map<Integer, String> indexToParamNameMap = methodContext.indexToParamMap();
         //
         final ResponseHandler<T> responseHandler = responseHandlerFactory.getResponseHandler(methodContext.returnType());
         //
-        return new MethodExecutor<>(httpClient, method, params, url, responseHandler, indexToParamNameMap, methodContext.constImplicitParams());
+        return new MethodExecutor<>(httpClient, method, url, responseHandler);
     }
 
     @Override
