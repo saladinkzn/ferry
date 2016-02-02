@@ -25,29 +25,19 @@ public class InvocationHandlerFactory {
     public InvocationHandler createInvocationHandler(Class<?> clazz) {
         final InterfaceContext interfaceContext = getInterfaceContext(clazz);
         //
-        Map<Method, MethodExecutor<?>> executorMap = new HashMap<>();
-        Map<Method, Map<Integer, String>> methodIndexToParamMap = new HashMap<>();
-        Map<Method, Map<String, String>> methodImplicitParamsMap = new HashMap<>();
+        Map<Method, MethodInvocationHandler.MethodExecutionContext<?>> methodExecutionContextMap = new HashMap<>();
         final Method[] methods = clazz.getMethods();
         for(Method method: methods) {
             final MethodContext methodContext = getMethodContext(interfaceContext, method);
-            executorMap.put(method, processMethod(methodContext));
-            methodIndexToParamMap.put(method, getIndexToParamMap(methodContext));
-            methodImplicitParamsMap.put(method, getImplicitParamsMap(methodContext));
+            methodExecutionContextMap.put(method, getMethodExecutionContext(methodContext));
         }
-        return new MethodInvocationHandler(executorMap, methodIndexToParamMap, methodImplicitParamsMap);
+
+        return new MethodInvocationHandler(methodExecutionContextMap);
     }
 
-    private Map<String, String> getImplicitParamsMap(MethodContext methodContext) {
-        return methodContext.constImplicitParams();
-    }
-
-    private Map<Integer, String> getIndexToParamMap(MethodContext methodContext) {
-        return methodContext.indexToParamMap();
-    }
-
-    private MethodExecutor<?> processMethod(MethodContext methodContext) {
-        return methodExecutorFactory.getRequestExecutor(methodContext);
+    private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) {
+        final MethodExecutor<T> requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
+        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, methodContext.indexToParamMap(), methodContext.constImplicitParams());
     }
 
     static InterfaceContext getInterfaceContext(Class<?> clazz) {
