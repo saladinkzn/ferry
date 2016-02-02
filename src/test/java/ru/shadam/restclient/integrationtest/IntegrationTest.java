@@ -9,8 +9,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ru.shadam.restclient.factory.ClientImplFactory;
+import ru.shadam.restclient.implicit.ImplicitParameterProvider;
+import ru.shadam.restclient.integrationtest.dto.Album;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author sala
@@ -39,6 +42,31 @@ public class IntegrationTest {
         //
         Assert.assertEquals("GET", value.getMethod());
         Assert.assertEquals("https://api.vk.com/methods/photos.get?v=5.41&owner_id=1&album_id=0&photo_ids=null", value.getURI().toString());
+    }
+
+    @Test
+    public void testPhotoRepository2() throws IOException {
+        final HttpClient httpClient = Mockito.mock(HttpClient.class);
+        final ArgumentCaptor<HttpUriRequest> httpUriRequestArgumentCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        //
+        ImplicitParameterProvider accessTokenProvider = new ImplicitParameterProvider() {
+            @Override
+            public String provideValue() {
+                return "ACCESS_TOKEN";
+            }
+        };
+        //
+        final ClientImplFactory clientImplFactory = new ClientImplFactory(httpClient, objectMapper);
+        clientImplFactory.registerImplicitParameterProvider("accessTokenProvider", accessTokenProvider);
+        final PhotoRepository photoRepository = clientImplFactory.getInterfaceImplementation(PhotoRepository.class);
+        //
+        final List<Album> albums = photoRepository.getAlbums(123L, "456", 100, 200);
+        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
+        final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
+        //
+        Assert.assertEquals("GET", value.getMethod());
+        Assert.assertEquals("https://api.vk.com/methods/photos.getAlbums?access_token=ACCESS_TOKEN&owner_id=123&album_ids=456&offset=100&count=200", value.getURI().toString());
     }
 
 }

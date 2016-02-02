@@ -20,9 +20,10 @@ public interface PhotoRepository {
                                  @Param("photo_ids") String photoIds);
 
     @Url("getAlbums")
+    @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
     public List<Album> getAlbums(@Param("owner_id") Long ownerId,
-                                 @Param("ablum_ids") String albumIds,
-                                 int offset,
-                                 int count);
+                                 @Param("album_ids") String albumIds,
+                                 @Param("offset") int offset,
+                                 @Param("count") int count);
 
 }

@@ -1,5 +1,6 @@
 package ru.shadam.restclient.factory;
 
+import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 import ru.shadam.restclient.analyze.InterfaceContext;
 import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.annotations.*;
+import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,7 +23,8 @@ public class InvocationHandlerFactoryTest {
     @Test
     public void createInvocationHandlerEmptyInterface() throws Exception {
         final MethodExecutorFactory methodExecutorFactory = Mockito.mock(MethodExecutorFactory.class);
-        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory);
+        final Map<String, ImplicitParameterProvider> implicitParameterProviderMap = Maps.newHashMap();
+        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, implicitParameterProviderMap);
         invocationHandlerFactory.createInvocationHandler(EmptyInterface.class);
         //
         final ArgumentCaptor<MethodContext> methodContextArgumentCaptor = ArgumentCaptor.forClass(MethodContext.class);
@@ -31,7 +34,8 @@ public class InvocationHandlerFactoryTest {
     @Test
     public void createInvocationHandlerEmptyMethodsInterface() {
         final MethodExecutorFactory methodExecutorFactory = Mockito.mock(MethodExecutorFactory.class);
-        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory);
+        final Map<String, ImplicitParameterProvider> implicitParameterProviderMap = Maps.newHashMap();
+        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, implicitParameterProviderMap);
         invocationHandlerFactory.createInvocationHandler(EmptyMethodsInterface.class);
         //
         final ArgumentCaptor<MethodContext> methodContextArgumentCaptor = ArgumentCaptor.forClass(MethodContext.class);

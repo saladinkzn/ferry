@@ -6,10 +6,14 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import ru.shadam.restclient.analyze.MethodContext;
+import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author sala
@@ -19,12 +23,13 @@ public class ClientImplFactory implements ResponseHandlerFactory, MethodExecutor
     private ObjectMapper objectMapper;
     private final ResponseHandlerFactory responseHandlerFactory;
     private final InvocationHandlerFactory invocationHandlerFactory;
+    private final Map<String, ImplicitParameterProvider> implicitParameterProviders = new HashMap<>();
 
     public ClientImplFactory(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
         this.responseHandlerFactory = this;
-        this.invocationHandlerFactory = new InvocationHandlerFactory(this);
+        this.invocationHandlerFactory = new InvocationHandlerFactory(this, implicitParameterProviders);
     }
 
     public <T> T getInterfaceImplementation(Class<T> interfaceClass) {
@@ -32,6 +37,12 @@ public class ClientImplFactory implements ResponseHandlerFactory, MethodExecutor
                 ClientImplFactory.class.getClassLoader(),
                 new Class<?>[]{interfaceClass},
                 invocationHandlerFactory.createInvocationHandler(interfaceClass)));
+    }
+
+    public void registerImplicitParameterProvider(String name, ImplicitParameterProvider provider) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(provider);
+        implicitParameterProviders.put(name, provider);
     }
 
     @Override

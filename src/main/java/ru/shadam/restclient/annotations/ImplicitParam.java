@@ -7,7 +7,6 @@ import java.lang.annotation.*;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ImplicitParams.class)
 public @interface ImplicitParam {
     String paramName();
 

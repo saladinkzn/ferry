@@ -5,6 +5,7 @@ import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.analyze.impl.DefaultInterfaceContext;
 import ru.shadam.restclient.analyze.impl.DefaultMethodContext;
 import ru.shadam.restclient.annotations.*;
+import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -17,9 +18,12 @@ import java.util.*;
  */
 public class InvocationHandlerFactory {
     private final MethodExecutorFactory methodExecutorFactory;
+    private final Map<String, ImplicitParameterProvider> implicitParameterProviderMap;
 
-    public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory) {
+    public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory, Map<String, ImplicitParameterProvider> implicitParameterProviderMap) {
+        Objects.requireNonNull(implicitParameterProviderMap);
         this.methodExecutorFactory = methodExecutorFactory;
+        this.implicitParameterProviderMap = implicitParameterProviderMap;
     }
 
     public InvocationHandler createInvocationHandler(Class<?> clazz) {
@@ -32,12 +36,12 @@ public class InvocationHandlerFactory {
             methodExecutionContextMap.put(method, getMethodExecutionContext(methodContext));
         }
 
-        return new MethodInvocationHandler(methodExecutionContextMap);
+        return new MethodInvocationHandler(methodExecutionContextMap, implicitParameterProviderMap);
     }
 
     private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) {
         final MethodExecutor<T> requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
-        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, methodContext.indexToParamMap(), methodContext.constImplicitParams());
+        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, methodContext.indexToParamMap(), methodContext.constImplicitParams(), methodContext.providedImplicitParams());
     }
 
     static InterfaceContext getInterfaceContext(Class<?> clazz) {
