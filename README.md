@@ -15,17 +15,19 @@ dependencies {
 Create repository:
 ```java
 @Url("https://api.vk.com/methods/photos.")
-public interface PhotoOperations {
+public interface PhotoRepository {
     @Url("get")
+    @ImplicitParam(paramName = "v", constValue = "5.41")
     public List<Photo> getPhotos(@Param("owner_id") Long ownerId,
-                                @Param("album_id") Long albumId,
-                                @Param("photo_ids") String photoIds);
+                                 @Param("album_id") Long albumId,
+                                 @Param("photo_ids") String photoIds);
 
     @Url("getAlbums")
+    @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
     public List<Album> getAlbums(@Param("owner_id") Long ownerId,
-                                  @Param("ablum_ids") String albumIds,
-                                  int offset,
-                                  int count);
+                                 @Param("album_ids") String albumIds,
+                                 @Param("offset") int offset,
+                                 @Param("count") int count);
 
 }
 ```
@@ -36,6 +38,13 @@ Then you can use it:
         HttpClientBuilder.create().build(),
         new ObjectMapper()
     );
+    clientImplFactory.registerImplicitParameterProvider("accessTokenProvider",
+        new ImplicitParameterProvider() {
+            @Override
+            public String provideValue() {
+                return "ACCESS_TOKEN";
+            }
+    });
     clientImplFactory.getInterfaceImplementation(PhotoOperations.class)
 ```
 
