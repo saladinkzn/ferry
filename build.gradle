@@ -27,6 +27,7 @@ dependencies {
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-all:1.10.19'
     testCompile 'com.google.guava:guava:19.0'
+    testCompile 'org.slf4j:slf4j-simple:1.7.12'
 }
 
 task wrapper(type: Wrapper) {

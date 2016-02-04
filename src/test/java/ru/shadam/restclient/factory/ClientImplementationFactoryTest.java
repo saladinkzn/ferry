@@ -19,12 +19,12 @@ import java.util.List;
 /**
  * @author sala
  */
-public class ClientImplFactoryTest {
+public class ClientImplementationFactoryTest {
     @Test
     public void testResponseHandlerFactory() throws IOException {
         final HttpClient httpClient = Mockito.mock(HttpClient.class);
-        final ClientImplFactory clientImplFactory = new ClientImplFactory(httpClient, new ObjectMapper());
-        final ResponseHandler<List<Integer>> listResponseHandler = clientImplFactory.getResponseHandler(new TypeReference<List<Integer>>() {}.getType());
+        final ClientImplementationFactory clientImplementationFactory = new ClientImplementationFactory(httpClient, new ObjectMapper());
+        final ResponseHandler<List<Integer>> listResponseHandler = clientImplementationFactory.getResponseHandler(new TypeReference<List<Integer>>() {}.getType());
         //
         final HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
         final HttpEntity httpEntity = Mockito.mock(HttpEntity.class);

@@ -1,5 +1,7 @@
 package ru.shadam.restclient.factory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.shadam.restclient.analyze.InterfaceContext;
 import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.analyze.impl.DefaultInterfaceContext;
@@ -17,6 +19,8 @@ import java.util.*;
  * @author sala
  */
 public class InvocationHandlerFactory {
+    private static final Logger logger = LoggerFactory.getLogger(InvocationHandlerFactory.class);
+    //
     private final MethodExecutorFactory methodExecutorFactory;
     private final Map<String, ImplicitParameterProvider> implicitParameterProviderMap;
 
@@ -27,6 +31,8 @@ public class InvocationHandlerFactory {
     }
 
     public InvocationHandler createInvocationHandler(Class<?> clazz) {
+        logger.debug("Creating invocation handler for class: {}", clazz);
+        //
         final InterfaceContext interfaceContext = getInterfaceContext(clazz);
         //
         Map<Method, MethodInvocationHandler.MethodExecutionContext<?>> methodExecutionContextMap = new HashMap<>();

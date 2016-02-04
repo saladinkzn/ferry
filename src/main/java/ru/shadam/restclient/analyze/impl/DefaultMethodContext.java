@@ -67,4 +67,19 @@ public class DefaultMethodContext implements MethodContext {
     public Map<String, String> providedImplicitParams() {
         return providedImplicitParams;
     }
+
+
+    @Override
+    public String toString() {
+        return "DefaultMethodContext{" +
+                "interfaceContext=" + interfaceContext +
+                ", url='" + url + '\'' +
+                ", method='" + method + '\'' +
+                ", params=" + params +
+                ", indexToParamMap=" + indexToParamMap +
+                ", returnType=" + returnType +
+                ", constImplicitParams=" + constImplicitParams +
+                ", providedImplicitParams=" + providedImplicitParams +
+                '}';
+    }
 }

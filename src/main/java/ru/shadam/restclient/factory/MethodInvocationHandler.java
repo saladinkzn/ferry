@@ -1,5 +1,7 @@
 package ru.shadam.restclient.factory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.io.IOException;
@@ -14,10 +16,12 @@ import java.util.Objects;
  * @author sala
  */
 class MethodInvocationHandler implements InvocationHandler {
+    private static final Logger logger = LoggerFactory.getLogger(MethodInvocationHandler.class);
+    //
     private final Map<Method, MethodExecutionContext<?>> methodExecutionContextMap;
     private final Map<String, ImplicitParameterProvider> providerMap;
 
-    MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ImplicitParameterProvider> providerMap) {
+    public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ImplicitParameterProvider> providerMap) {
         Objects.requireNonNull(methodExecutionContextMap);
         Objects.requireNonNull(providerMap);
         this.methodExecutionContextMap = methodExecutionContextMap;
@@ -27,10 +31,17 @@ class MethodInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         final MethodExecutionContext methodExecutionContext = methodExecutionContextMap.get(method);
+        if(methodExecutionContext == null) {
+            // I'm not really sure if this can happen.
+            logger.error("Cannot find MethodExecutionContext for method: {}", method);
+            throw new IllegalStateException("MethodExecutionContext for method: " + method + " was not found");
+        }
+        logger.debug("Executing method: method: {}, args: {}", method, args);
         return execute(methodExecutionContext, args);
     }
 
     private <T> T execute(MethodExecutionContext<T> methodExecutionContext, Object[] args) throws IOException {
+        //
         final MethodExecutor<T> methodExecutor = methodExecutionContext.methodExecutor;
         final Map<Integer, String> indexToParamMap = methodExecutionContext.indexToParamMap;
         final Map<String, String> constImplicitParamMap = methodExecutionContext.constImplicitParamMap;
@@ -41,6 +52,10 @@ class MethodInvocationHandler implements InvocationHandler {
             final String paramName = implicitParamEntry.getKey();
             final String value = implicitParamEntry.getValue();
             //
+            if(logger.isTraceEnabled()) {
+                logger.trace("Adding const implicit param: {}={}", paramName, value);
+            }
+            //
             paramToValueMap.put(paramName, value);
         }
         for(Map.Entry<String, String> nameToProvider : implicitParameterProviderMap.entrySet()) {
@@ -48,12 +63,18 @@ class MethodInvocationHandler implements InvocationHandler {
             final String providerName = nameToProvider.getValue();
             // TODO: check if provider exists
             final String value = providerMap.get(providerName).provideValue();
+            if(logger.isTraceEnabled()) {
+                logger.trace("Adding provided implicit param: {}={}", paramName, value);
+            }
             paramToValueMap.put(paramName, value);
         }
         for (final Map.Entry<Integer, String> indexToParam : indexToParamMap.entrySet()) {
             final Integer index = indexToParam.getKey();
             final String paramName = indexToParam.getValue();
             final Object value = args[index];
+            if(logger.isTraceEnabled()) {
+                logger.trace("Adding arg param: {}={}", paramName, value);
+            }
             paramToValueMap.put(paramName, value);
         }
 
@@ -71,6 +92,16 @@ class MethodInvocationHandler implements InvocationHandler {
             this.indexToParamMap = indexToParamMap;
             this.constImplicitParamMap = constImplicitParamMap;
             this.implicitParameterProviderMap = implicitParameterProviderMap;
+        }
+
+        @Override
+        public String toString() {
+            return "MethodExecutionContext{" +
+                    "methodExecutor=" + methodExecutor +
+                    ", indexToParamMap=" + indexToParamMap +
+                    ", constImplicitParamMap=" + constImplicitParamMap +
+                    ", implicitParameterProviderMap=" + implicitParameterProviderMap +
+                    '}';
         }
     }
 

@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import ru.shadam.restclient.factory.ClientImplFactory;
+import ru.shadam.restclient.factory.ClientImplementationFactory;
 import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 import ru.shadam.restclient.integrationtest.dto.Album;
 
@@ -34,7 +34,7 @@ public class IntegrationTest {
         //
         //
         final ObjectMapper objectMapper = new ObjectMapper();
-        final PhotoRepository photoRepository = new ClientImplFactory(httpClient, objectMapper).getInterfaceImplementation(PhotoRepository.class);
+        final PhotoRepository photoRepository = new ClientImplementationFactory(httpClient, objectMapper).getInterfaceImplementation(PhotoRepository.class);
         photoRepository.getPhotos(1L, 0L, null);
         Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
         final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
@@ -57,9 +57,9 @@ public class IntegrationTest {
             }
         };
         //
-        final ClientImplFactory clientImplFactory = new ClientImplFactory(httpClient, objectMapper);
-        clientImplFactory.registerImplicitParameterProvider("accessTokenProvider", accessTokenProvider);
-        final PhotoRepository photoRepository = clientImplFactory.getInterfaceImplementation(PhotoRepository.class);
+        final ClientImplementationFactory clientImplementationFactory = new ClientImplementationFactory(httpClient, objectMapper);
+        clientImplementationFactory.registerImplicitParameterProvider("accessTokenProvider", accessTokenProvider);
+        final PhotoRepository photoRepository = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
         //
         final List<Album> albums = photoRepository.getAlbums(123L, "456", 100, 200);
         Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());

@@ -19,7 +19,7 @@ public class ObjectMapperResponseHandlerTest {
     @Test
     public void handleResponse() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
-        final ClientImplFactory.ObjectMapperResponseHandler<List> responseHandler = new ClientImplFactory.ObjectMapperResponseHandler<>(objectMapper, List.class);
+        final ClientImplementationFactory.ObjectMapperResponseHandler<List> responseHandler = new ClientImplementationFactory.ObjectMapperResponseHandler<>(objectMapper, List.class);
         final HttpResponse response = Mockito.mock(HttpResponse.class);
         final HttpEntity httpEntity = Mockito.mock(HttpEntity.class);
         Mockito.when(response.getEntity()).thenReturn(httpEntity);

@@ -23,4 +23,13 @@ public class DefaultInterfaceContext implements InterfaceContext {
     public String defaultMethod() {
         return defaultMethod;
     }
+
+
+    @Override
+    public String toString() {
+        return "DefaultInterfaceContext{" +
+                "baseUrl='" + baseUrl + '\'' +
+                ", defaultMethod='" + defaultMethod + '\'' +
+                '}';
+    }
 }

@@ -32,6 +32,7 @@ class MethodExecutor<T> {
 
     public T execute(Map<String, ?> parameters) throws IOException {
         final HttpUriRequest request = getHttpUriRequest(parameters);
+        logger.debug("Executing request: {} {}", request.getMethod(), request.getURI());
         return httpClient.execute(request, responseHandler);
 
     }
@@ -41,12 +42,18 @@ class MethodExecutor<T> {
         requestBuilder.setUri(url);
         for(Map.Entry<String, ?> parameterEntry: values.entrySet()) {
             final String parameterKey = parameterEntry.getKey();
-            if(!values.containsKey(parameterKey)) {
-                continue;
-            }
-            requestBuilder.addParameter(parameterKey, String.valueOf(values.get(parameterKey)));
+            requestBuilder.addParameter(parameterKey, String.valueOf(parameterEntry.getValue()));
         }
         return requestBuilder.build();
     }
 
+
+    @Override
+    public String toString() {
+        return "MethodExecutor{" +
+                "method='" + method + '\'' +
+                ", url='" + url + '\'' +
+                ", responseHandler=" + responseHandler +
+                '}';
+    }
 }
