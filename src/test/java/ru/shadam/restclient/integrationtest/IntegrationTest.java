@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ru.shadam.restclient.factory.ClientImplementationFactory;
+import ru.shadam.restclient.factory.DefaultClientImplementationFactory;
 import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 import ru.shadam.restclient.integrationtest.dto.Album;
 
@@ -34,7 +35,7 @@ public class IntegrationTest {
         //
         //
         final ObjectMapper objectMapper = new ObjectMapper();
-        final PhotoRepository photoRepository = new ClientImplementationFactory(httpClient, objectMapper).getInterfaceImplementation(PhotoRepository.class);
+        final PhotoRepository photoRepository = new DefaultClientImplementationFactory(httpClient, objectMapper).getInterfaceImplementation(PhotoRepository.class);
         photoRepository.getPhotos(1L, 0L, null);
         Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
         final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
@@ -57,7 +58,7 @@ public class IntegrationTest {
             }
         };
         //
-        final ClientImplementationFactory clientImplementationFactory = new ClientImplementationFactory(httpClient, objectMapper);
+        final ClientImplementationFactory clientImplementationFactory = new DefaultClientImplementationFactory(httpClient, objectMapper);
         clientImplementationFactory.registerImplicitParameterProvider("accessTokenProvider", accessTokenProvider);
         final PhotoRepository photoRepository = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
         //

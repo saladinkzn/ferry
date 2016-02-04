@@ -9,6 +9,7 @@ import org.apache.http.client.ResponseHandler;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import ru.shadam.restclient.factory.responsehandler.ObjectMapperResponseHandlerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,8 +24,8 @@ public class ClientImplementationFactoryTest {
     @Test
     public void testResponseHandlerFactory() throws IOException {
         final HttpClient httpClient = Mockito.mock(HttpClient.class);
-        final ClientImplementationFactory clientImplementationFactory = new ClientImplementationFactory(httpClient, new ObjectMapper());
-        final ResponseHandler<List<Integer>> listResponseHandler = clientImplementationFactory.getResponseHandler(new TypeReference<List<Integer>>() {}.getType());
+        final ObjectMapperResponseHandlerFactory objectMapperResponseHandlerFactory = new ObjectMapperResponseHandlerFactory(new ObjectMapper());
+        final ResponseHandler<List<Integer>> listResponseHandler = objectMapperResponseHandlerFactory.getResponseHandler(new TypeReference<List<Integer>>() {}.getType());
         //
         final HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
         final HttpEntity httpEntity = Mockito.mock(HttpEntity.class);

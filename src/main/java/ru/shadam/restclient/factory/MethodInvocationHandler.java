@@ -2,6 +2,7 @@ package ru.shadam.restclient.factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.shadam.restclient.factory.executor.MethodExecutor;
 import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.io.IOException;

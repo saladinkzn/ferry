@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import ru.shadam.restclient.analyze.InterfaceContext;
 import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.annotations.*;
+import ru.shadam.restclient.factory.executor.MethodExecutorFactory;
 import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.util.LinkedHashSet;

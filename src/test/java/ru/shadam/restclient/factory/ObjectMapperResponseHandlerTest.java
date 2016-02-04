@@ -6,6 +6,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import ru.shadam.restclient.factory.responsehandler.ObjectMapperResponseHandler;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +20,7 @@ public class ObjectMapperResponseHandlerTest {
     @Test
     public void handleResponse() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
-        final ClientImplementationFactory.ObjectMapperResponseHandler<List> responseHandler = new ClientImplementationFactory.ObjectMapperResponseHandler<>(objectMapper, List.class);
+        final ObjectMapperResponseHandler<List> responseHandler = new ObjectMapperResponseHandler<>(objectMapper, List.class);
         final HttpResponse response = Mockito.mock(HttpResponse.class);
         final HttpEntity httpEntity = Mockito.mock(HttpEntity.class);
         Mockito.when(response.getEntity()).thenReturn(httpEntity);

@@ -1,4 +1,4 @@
-package ru.shadam.restclient.factory;
+package ru.shadam.restclient.factory.responsehandler;
 
 import org.apache.http.client.ResponseHandler;
 

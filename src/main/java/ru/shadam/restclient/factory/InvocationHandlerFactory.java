@@ -7,6 +7,8 @@ import ru.shadam.restclient.analyze.MethodContext;
 import ru.shadam.restclient.analyze.impl.DefaultInterfaceContext;
 import ru.shadam.restclient.analyze.impl.DefaultMethodContext;
 import ru.shadam.restclient.annotations.*;
+import ru.shadam.restclient.factory.executor.MethodExecutor;
+import ru.shadam.restclient.factory.executor.MethodExecutorFactory;
 import ru.shadam.restclient.implicit.ImplicitParameterProvider;
 
 import java.lang.annotation.Annotation;

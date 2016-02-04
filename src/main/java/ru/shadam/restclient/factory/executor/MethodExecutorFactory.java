@@ -1,4 +1,4 @@
-package ru.shadam.restclient.factory;
+package ru.shadam.restclient.factory.executor;
 
 import ru.shadam.restclient.analyze.MethodContext;
 

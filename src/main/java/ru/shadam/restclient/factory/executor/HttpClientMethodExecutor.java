@@ -1,4 +1,4 @@
-package ru.shadam.restclient.factory;
+package ru.shadam.restclient.factory.executor;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -14,22 +14,23 @@ import java.util.Objects;
 /**
  * @author sala
  */
-class MethodExecutor<T> {
+public class HttpClientMethodExecutor<T> implements MethodExecutor<T> {
     // TODO: use this logger u bastard
-    private static final Logger logger = LoggerFactory.getLogger(MethodExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientMethodExecutor.class);
     private final HttpClient httpClient;
     private final String method;
     private final String url;
     private final ResponseHandler<T> responseHandler;
 
 
-    public MethodExecutor(HttpClient httpClient, String method, String url, ResponseHandler<T> responseHandler) {
+    public HttpClientMethodExecutor(HttpClient httpClient, String method, String url, ResponseHandler<T> responseHandler) {
         this.httpClient = Objects.requireNonNull(httpClient);
         this.method = Objects.requireNonNull(method);
         this.url = Objects.requireNonNull(url);
         this.responseHandler = Objects.requireNonNull(responseHandler);
     }
 
+    @Override
     public T execute(Map<String, ?> parameters) throws IOException {
         final HttpUriRequest request = getHttpUriRequest(parameters);
         logger.debug("Executing request: {} {}", request.getMethod(), request.getURI());
@@ -37,7 +38,7 @@ class MethodExecutor<T> {
 
     }
 
-    HttpUriRequest getHttpUriRequest(Map<String, ?> values) {
+    public HttpUriRequest getHttpUriRequest(Map<String, ?> values) {
         final RequestBuilder requestBuilder = RequestBuilder.create(method);
         requestBuilder.setUri(url);
         for(Map.Entry<String, ?> parameterEntry: values.entrySet()) {

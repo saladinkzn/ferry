@@ -1,16 +1,13 @@
 package ru.shadam.restclient.factory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.omg.CORBA.Object;
-
-import java.util.Map;
+import ru.shadam.restclient.factory.executor.HttpClientMethodExecutor;
 
 /**
  * @author sala
@@ -19,7 +16,7 @@ public class MethodExecutorTest {
     @Test
     public void testBuildHttpRequest() {
         HttpClient client = Mockito.mock(HttpClient.class);
-        final MethodExecutor<Object> requestExecutor = new MethodExecutor<>(
+        final HttpClientMethodExecutor<Object> requestExecutor = new HttpClientMethodExecutor<>(
                 client,
                 "GET",
                 "http://example.com",
