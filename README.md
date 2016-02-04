@@ -1,4 +1,4 @@
-# RestClient-repo
+# Ferry
 
 Library for creating spring-data style repositories but for rest apis.
 
@@ -8,7 +8,7 @@ Usage:
 Add dependency:
 ```groovy
 dependencies {
-    compile 'ru.shadam.restclient:restclient:1.0.0'
+    compile 'ru.shadam.ferry:ferry:0.1.0-SNAPSHOT'
 }
 ```
 

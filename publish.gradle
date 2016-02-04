@@ -1,0 +1,89 @@
+compileJava.dependsOn(processResources)
+
+task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates sources jar') {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, description: 'Creates javadoc jar') {
+  dependsOn 'javadoc'
+}
+
+artifacts {
+  archives sourcesJar, javadocJar
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      pom.withXml {
+        asNode().with {
+          appendNode('description', rootProject.description)
+          appendNode('url', rootProject.project_website)
+          appendNode('scm').with {
+            appendNode('url', rootProject.project_scm)
+            appendNode('connection', rootProject.project_scm)
+            appendNode('developerConnection', rootProject.project_scm)
+          }
+          appendNode('licenses').with {
+            appendNode('license').with {
+              appendNode('name', rootProject.license)
+              appendNode('url', rootProject.license_url)
+              appendNode('distribution', 'repo')
+            }
+          }
+          appendNode('developers').with {
+            appendNode('developer').with {
+              appendNode('id', rootProject.developerId)
+              appendNode('name', rootProject.developerName)
+            }
+          }
+          it
+        }
+      }
+
+      from components.java
+//
+      artifact sourcesJar {
+        classifier 'sources'
+      }
+
+      artifact javadocJar {
+        classifier "javadoc"
+      }
+    }
+  }
+}
+
+project.tasks.build.finalizedBy project.tasks.publishToMavenLocal
+
+if(file('local.gradle').exists()) {
+  apply from: 'local.gradle'
+}
+// oss.jfrog.org artifactory repository
+def bintrayUser = project.hasProperty('bintrayUser') ? project.bintrayUser : ''
+def bintrayKey = project.hasProperty('bintrayKey') ? project.bintrayKey : ''
+
+println "bintrayUser: $bintrayUser, bintrayKey: $bintrayKey"
+
+artifactory {
+  contextUrl = 'https://oss.jfrog.org/artifactory'
+  publish {
+    repository {
+      if (project.version.endsWith('-SNAPSHOT'))
+        repoKey = 'oss-snapshot-local'
+      else
+        repoKey = 'oss-release-local'
+      username = bintrayUser
+      password = bintrayKey
+    }
+    defaults {
+      publications 'mavenJava'
+    }
+  }
+  resolve {
+    repository {
+      repoKey = 'repo'
+    }
+  }
+}
