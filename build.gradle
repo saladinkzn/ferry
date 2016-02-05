@@ -1,13 +1,20 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0"
+    }
+}
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
+apply from: 'publish.gradle'
 
 project.ext {
     sourceCompatibility = '1.7'
     targetCompatibility = '1.7'
 
-    project_website = "https://github.com/${developerId}/${projectId}"
-    project_scm = "scm:git@github.com:${developerId}/${projectId}.git"
-    license_url = "https://raw.github.com/${developerId}/${projectId}/master/LICENSE"
+
 }
 
 repositories {
