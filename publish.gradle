@@ -22,29 +22,30 @@ artifacts {
   archives sourcesJar, javadocJar
 }
 
+def rootProject = project
 publishing {
   publications {
     mavenJava(MavenPublication) {
       pom.withXml {
         asNode().with {
-          appendNode('description', project.description)
-          appendNode('url', project.project_website)
+          appendNode('description', rootProject.description)
+          appendNode('url', rootProject.project_website)
           appendNode('scm').with {
-            appendNode('url', project.project_scm)
-            appendNode('connection', project.project_scm)
-            appendNode('developerConnection', project.project_scm)
+            appendNode('url', rootProject.project_scm)
+            appendNode('connection', rootProject.project_scm)
+            appendNode('developerConnection', rootProject.project_scm)
           }
           appendNode('licenses').with {
             appendNode('license').with {
-              appendNode('name', project.license)
-              appendNode('url', project.license_url)
+              appendNode('name', "${rootProject.license}")
+              appendNode('url', rootProject.license_url)
               appendNode('distribution', 'repo')
             }
           }
           appendNode('developers').with {
             appendNode('developer').with {
-              appendNode('id', project.developerId)
-              appendNode('name', project.developerName)
+              appendNode('id', rootProject.developerId)
+              appendNode('name', rootProject.developerName)
             }
           }
           it
