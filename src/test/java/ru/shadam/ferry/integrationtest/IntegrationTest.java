@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import ru.shadam.ferry.factory.ClientImplementationFactory;
 import ru.shadam.ferry.factory.DefaultClientImplementationFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
+import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 import ru.shadam.ferry.integrationtest.dto.Album;
 
 import java.io.IOException;
@@ -68,6 +69,36 @@ public class IntegrationTest {
         //
         Assert.assertEquals("GET", value.getMethod());
         Assert.assertEquals("https://api.vk.com/methods/photos.getAlbums?access_token=ACCESS_TOKEN&owner_id=123&album_ids=456&offset=100&count=200", value.getURI().toString());
+    }
+
+    @Test
+    public void testPhotoRepository3() throws IOException {
+        final HttpClient httpClient = Mockito.mock(HttpClient.class);
+        final ArgumentCaptor<HttpUriRequest> httpUriRequestArgumentCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        //
+        ImplicitParameterProvider accessTokenProvider = new ImplicitParameterWithNameProvider() {
+            @Override
+            public String parameterName() {
+                return "access_token";
+            }
+
+            @Override
+            public String provideValue() {
+                return "ACCESS_TOKEN";
+            }
+        };
+        //
+        final ClientImplementationFactory clientImplementationFactory = new DefaultClientImplementationFactory(httpClient, objectMapper);
+        clientImplementationFactory.registerImplicitParameterProvider("accessTokenProvider", accessTokenProvider);
+        final PhotoRepository photoRepository = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
+        //
+        final List<Album> albums = photoRepository.getAlbums2();
+        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
+        final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
+        //
+        Assert.assertEquals("GET", value.getMethod());
+        Assert.assertEquals("https://api.vk.com/methods/photos.getAlbums?access_token=ACCESS_TOKEN", value.getURI().toString());
     }
 
 }

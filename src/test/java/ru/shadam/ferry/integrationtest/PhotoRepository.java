@@ -26,4 +26,8 @@ public interface PhotoRepository {
                                  @Param("offset") int offset,
                                  @Param("count") int count);
 
+
+    @Url("getAlbums")
+    @ImplicitParam(paramName = "", providerName = "accessTokenProvider")
+    List<Album> getAlbums2();
 }

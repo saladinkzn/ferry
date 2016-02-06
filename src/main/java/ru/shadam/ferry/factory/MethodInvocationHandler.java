@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
+import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -20,9 +21,9 @@ class MethodInvocationHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(MethodInvocationHandler.class);
     //
     private final Map<Method, MethodExecutionContext<?>> methodExecutionContextMap;
-    private final Map<String, ImplicitParameterProvider> providerMap;
+    private final Map<String, ? extends ImplicitParameterProvider> providerMap;
 
-    public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ImplicitParameterProvider> providerMap) {
+    public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ? extends ImplicitParameterProvider> providerMap) {
         Objects.requireNonNull(methodExecutionContextMap);
         Objects.requireNonNull(providerMap);
         this.methodExecutionContextMap = methodExecutionContextMap;
@@ -60,10 +61,26 @@ class MethodInvocationHandler implements InvocationHandler {
             paramToValueMap.put(paramName, value);
         }
         for(Map.Entry<String, String> nameToProvider : implicitParameterProviderMap.entrySet()) {
-            final String paramName = nameToProvider.getKey();
             final String providerName = nameToProvider.getValue();
+            final ImplicitParameterProvider implicitParameterProvider = providerMap.get(providerName);
+            if(implicitParameterProvider == null) {
+                logger.debug("Provider {} required by {} was not found" + methodExecutionContext);
+                continue;
+            }
+            final String value = implicitParameterProvider.provideValue();
+            final String paramName;
+            if(implicitParameterProvider instanceof ImplicitParameterWithNameProvider) {
+                final ImplicitParameterWithNameProvider implicitParameterWithNameProvider = (ImplicitParameterWithNameProvider) implicitParameterProvider;
+                final String contextParamName = nameToProvider.getKey();
+                if("".equals(contextParamName)) {
+                    paramName = implicitParameterWithNameProvider.parameterName();
+                } else {
+                    paramName = contextParamName;
+                }
+            } else {
+                paramName = nameToProvider.getKey();
+            }
             // TODO: check if provider exists
-            final String value = providerMap.get(providerName).provideValue();
             if(logger.isTraceEnabled()) {
                 logger.trace("Adding provided implicit param: {}={}", paramName, value);
             }
