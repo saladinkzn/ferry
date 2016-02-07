@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * @author sala
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ImplicitParam {
     String paramName();

@@ -132,6 +132,48 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals("accessTokenProvider", providedImplicitParams1.get("access_token"));
     }
 
+    @Test
+    public void getInterfaceContextImplicitTest() throws Throwable {
+        final Class<ClassLevelImplicitTestInterface> classLevelImplicitTestInterfaceClass = ClassLevelImplicitTestInterface.class;
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(classLevelImplicitTestInterfaceClass);
+        final Map<String, String> constImplicitParams = interfaceContext.constImplicitParams();
+        Assert.assertNotNull(constImplicitParams);
+        Assert.assertTrue(constImplicitParams.containsKey("v"));
+        Assert.assertEquals("5.41", constImplicitParams.get("v"));
+        //
+        final Class<ClassLevelProvidedImplicitTestInterface> classLevelProvidedImplicitTestInterface = ClassLevelProvidedImplicitTestInterface.class;
+        final InterfaceContext interfaceContext2 = InvocationHandlerFactory.getInterfaceContext(classLevelProvidedImplicitTestInterface);
+        final Map<String, String> providedImplicitParams = interfaceContext2.providedImplicitParams();
+        Assert.assertNotNull(providedImplicitParams);
+        Assert.assertTrue(providedImplicitParams.containsKey("access_token"));
+        Assert.assertEquals("accessTokenProvider", providedImplicitParams.get("access_token"));
+
+        final Class<ClassLevelInplicitParamsTestInterface> classLevelInplicitParamsTestInterfaceClass = ClassLevelInplicitParamsTestInterface.class;
+        final InterfaceContext interfaceContext3 = InvocationHandlerFactory.getInterfaceContext(classLevelInplicitParamsTestInterfaceClass);
+        final Map<String, String> constImplicitParams2 = interfaceContext3.constImplicitParams();
+        final Map<String, String> providedImplicitParams2 = interfaceContext3.providedImplicitParams();
+        Assert.assertNotNull(constImplicitParams2);
+        Assert.assertTrue(constImplicitParams2.containsKey("v"));
+        Assert.assertEquals("5.41", constImplicitParams2.get("v"));
+        Assert.assertNotNull(providedImplicitParams2);
+        Assert.assertTrue(providedImplicitParams2.containsKey("access_token"));
+        Assert.assertEquals("accessTokenProvider", providedImplicitParams2.get("access_token"));
+    }
+
+    @Test
+    public void mixTypeAndMethodImplicitTest() throws Throwable {
+        final Class<MixedImplicitParamsTestInterface> mixedImplicitParamsTestInterfaceClass = MixedImplicitParamsTestInterface.class;
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(mixedImplicitParamsTestInterfaceClass);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, mixedImplicitParamsTestInterfaceClass.getMethod("testMethod"));
+        //
+        final Map<String, String> constImplicitParams = methodContext.constImplicitParams();
+        Assert.assertNotNull(constImplicitParams);
+        Assert.assertTrue(constImplicitParams.containsKey("v"));
+        Assert.assertTrue(constImplicitParams.containsKey("v2"));
+        Assert.assertEquals("5.41", constImplicitParams.get("v"));
+        Assert.assertEquals("-alpha", constImplicitParams.get("v2"));
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -174,5 +216,27 @@ public class InvocationHandlerFactoryTest {
                 @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
         })
         List testMethod3(@Param("owner_id") Long ownerId);
+    }
+
+    @ImplicitParam(paramName = "v", constValue = "5.41")
+    private interface ClassLevelImplicitTestInterface {
+        void testMethod();
+    }
+
+    @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
+    private interface ClassLevelProvidedImplicitTestInterface {
+        void testMethod();
+    }
+
+    @ImplicitParams({
+        @ImplicitParam(paramName = "v", constValue = "5.41"),
+        @ImplicitParam(paramName = "access_token", providerName = "accessTokenProvider")
+    })
+    private interface ClassLevelInplicitParamsTestInterface { }
+
+    @ImplicitParam(paramName = "v", constValue = "5.41")
+    private interface MixedImplicitParamsTestInterface {
+        @ImplicitParam(paramName = "v2", constValue = "-alpha")
+        void testMethod();
     }
 }

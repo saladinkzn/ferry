@@ -70,7 +70,14 @@ public class InvocationHandlerFactory {
             defaultMethod = methodAnnotation.value();
         }
         //
-        return new DefaultInterfaceContext(baseUrl, defaultMethod);
+        final List<ImplicitParam> implicitParamList = parseImplicitParams(
+                clazz.getAnnotation(ImplicitParams.class),
+                clazz.getAnnotation(ImplicitParam.class)
+        );
+        final Map<String, String> constImplicitParams = new HashMap<>();
+        final Map<String, String> providedImplicitParams = new HashMap<>();
+        fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
+        return new DefaultInterfaceContext(baseUrl, defaultMethod, constImplicitParams, providedImplicitParams);
     }
 
     static MethodContext getMethodContext(InterfaceContext interfaceContext, Method method) {
@@ -107,15 +114,23 @@ public class InvocationHandlerFactory {
                 }
             }
         }
-        final Map<String, String> constImplicitParams = new HashMap<>();
-        final Map<String, String> providedImplicitParams = new HashMap<>();
         //
+        final List<ImplicitParam> implicitParamList = parseImplicitParams(
+                method.getAnnotation(ImplicitParams.class), method.getAnnotation(ImplicitParam.class)
+        );
+
+        final Map<String, String> constImplicitParams = interfaceContext.constImplicitParams();
+        final Map<String, String> providedImplicitParams = interfaceContext.providedImplicitParams();
+        fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
+        //
+        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams);
+    }
+
+    private static List<ImplicitParam> parseImplicitParams(ImplicitParams implicitParams, ImplicitParam implicitParam) {
         final List<ImplicitParam> implicitParamList;
-        final ImplicitParams implicitParams = method.getAnnotation(ImplicitParams.class);
         if(implicitParams != null) {
             implicitParamList = Arrays.asList(implicitParams.value());
         } else {
-            final ImplicitParam implicitParam = method.getAnnotation(ImplicitParam.class);
             if(implicitParam != null) {
                 final ArrayList<ImplicitParam> list = new ArrayList<>();
                 list.add(implicitParam);
@@ -124,7 +139,10 @@ public class InvocationHandlerFactory {
                 implicitParamList = new ArrayList<>();
             }
         }
+        return implicitParamList;
+    }
 
+    private static void fillImplicitParamMaps(List<ImplicitParam> implicitParamList, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams) {
         for(ImplicitParam implicitParam : implicitParamList) {
             if(!"".equals(implicitParam.constValue()) && !"".equals(implicitParam.providerName())) {
                 throw new IllegalStateException("ImplicitParam cannot simultaneously provide constValue and providerName");
@@ -134,9 +152,6 @@ public class InvocationHandlerFactory {
             } else if (!"".equals(implicitParam.providerName())) {
                 providedImplicitParams.put(implicitParam.paramName(), implicitParam.providerName());
             }
-
         }
-        //
-        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams);
     }
 }
