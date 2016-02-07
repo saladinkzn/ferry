@@ -1,3 +1,12 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+
+project.ext {
+  project_website = "https://github.com/${developerId}/${projectId}"
+  project_scm = "scm:git@github.com:${developerId}/${projectId}.git"
+  license_url = "https://raw.github.com/${developerId}/${projectId}/master/LICENSE"
+}
+
 compileJava.dependsOn(processResources)
 
 task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates sources jar') {
@@ -13,6 +22,7 @@ artifacts {
   archives sourcesJar, javadocJar
 }
 
+def rootProject = project
 publishing {
   publications {
     mavenJava(MavenPublication) {
@@ -27,7 +37,7 @@ publishing {
           }
           appendNode('licenses').with {
             appendNode('license').with {
-              appendNode('name', rootProject.license)
+              appendNode('name', "${rootProject.license}")
               appendNode('url', rootProject.license_url)
               appendNode('distribution', 'repo')
             }
@@ -61,10 +71,12 @@ if(file('local.gradle').exists()) {
   apply from: 'local.gradle'
 }
 // oss.jfrog.org artifactory repository
-def bintrayUser = project.hasProperty('bintrayUser') ? project.bintrayUser : ''
-def bintrayKey = project.hasProperty('bintrayKey') ? project.bintrayKey : ''
+def bintrayUser = System.getenv('BINTRAY_USER') ?: ''
+def bintrayKey = System.getenv('BINTRAY_KEY') ?: ''
 
-println "bintrayUser: $bintrayUser, bintrayKey: $bintrayKey"
+task debugCredentials() << {
+  println "bintrayUser: $bintrayUser, bintrayKey: $bintrayKey"
+}
 
 artifactory {
   contextUrl = 'https://oss.jfrog.org/artifactory'
