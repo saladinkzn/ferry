@@ -12,7 +12,16 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * Implementation proxy factory.
+ *
+ * Usage sample:
+ * <pre><code>
+ *     ClientImplementationFactory cif = new DefaultClientImplementationFactory(httpClient, objectMapper);
+ *     PhotoRepository photoRepository = cif.getInterfaceImplementation(PhotoRepository.class);
+ * </code></pre>
+ *
  * @author sala
+ * @see DefaultClientImplementationFactory
  */
 public class ClientImplementationFactory {
     private static final Logger logger = LoggerFactory.getLogger(ClientImplementationFactory.class);

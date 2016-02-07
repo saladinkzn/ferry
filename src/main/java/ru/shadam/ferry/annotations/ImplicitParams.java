@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Collection annotation for {@link ImplicitParam}
+ *
  * @author sala
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

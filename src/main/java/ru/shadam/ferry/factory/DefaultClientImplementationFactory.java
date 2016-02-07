@@ -11,7 +11,10 @@ import ru.shadam.ferry.factory.responsehandler.ObjectMapperResponseHandlerFactor
 import java.util.Arrays;
 
 /**
+ * Default Apache HttpClient and Jackson-based implementation of {@link ClientImplementationFactory}
  * @author sala
+ *
+ * @see ClientImplementationFactory
  */
 public class DefaultClientImplementationFactory extends ClientImplementationFactory {
     public DefaultClientImplementationFactory(HttpClient httpClient, ObjectMapper objectMapper) {

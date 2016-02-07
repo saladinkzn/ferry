@@ -6,7 +6,11 @@ import org.apache.http.client.ResponseHandler;
 import java.lang.reflect.Type;
 
 /**
+ * Jackson-based {@link ResponseHandlerFactory} implementation
+ *
  * @author sala
+ * @see ResponseHandlerFactory
+ * @see ObjectMapper
  */
 public class ObjectMapperResponseHandlerFactory implements ResponseHandlerFactory {
     private final ObjectMapper objectMapper;

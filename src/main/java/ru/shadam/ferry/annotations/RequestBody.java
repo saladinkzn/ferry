@@ -6,7 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation for parameter that should be pass as request body to remote api
+ * Annotation to mark that method parameter should be passed as a request body to remote api
+ *
+ * <p><b>Example:</b>
+ * <pre><code>
+ *     public void testMethod(@RequestBody String body);
+ * </code></pre>
  *
  * @author sala
  */
