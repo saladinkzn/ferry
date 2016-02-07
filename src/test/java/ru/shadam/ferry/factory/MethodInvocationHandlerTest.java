@@ -147,7 +147,7 @@ public class MethodInvocationHandlerTest {
         final Method method = TestInterface.class.getMethod("testMethod");
         final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
-                ImmutableMap.of(
+                ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
                         new MethodInvocationHandler.MethodExecutionContext<>(
                                 methodExecutor,
