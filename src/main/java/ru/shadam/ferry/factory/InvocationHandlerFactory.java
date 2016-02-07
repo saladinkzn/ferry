@@ -119,8 +119,8 @@ public class InvocationHandlerFactory {
                 method.getAnnotation(ImplicitParams.class), method.getAnnotation(ImplicitParam.class)
         );
 
-        final Map<String, String> constImplicitParams = interfaceContext.constImplicitParams();
-        final Map<String, String> providedImplicitParams = interfaceContext.providedImplicitParams();
+        final Map<String, String> constImplicitParams = new HashMap<>(interfaceContext.constImplicitParams());
+        final Map<String, String> providedImplicitParams = new HashMap<>(interfaceContext.providedImplicitParams());
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         //
         return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams);
