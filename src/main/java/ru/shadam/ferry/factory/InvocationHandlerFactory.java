@@ -49,7 +49,12 @@ public class InvocationHandlerFactory {
 
     private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) {
         final MethodExecutor<T> requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
-        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, methodContext.indexToParamMap(), methodContext.constImplicitParams(), methodContext.providedImplicitParams());
+        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor,
+                methodContext.indexToParamMap(),
+                methodContext.constImplicitParams(),
+                methodContext.providedImplicitParams(),
+                methodContext.indexToPathVariableMap()
+        );
     }
 
     static InterfaceContext getInterfaceContext(Class<?> clazz) {
@@ -101,6 +106,7 @@ public class InvocationHandlerFactory {
         //
         final LinkedHashSet<String> params = new LinkedHashSet<>();
         final Map<Integer, String> indexToNameMap = new LinkedHashMap<>();
+        final Map<Integer, String> indexToPathVariableMap = new HashMap<>();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {
             final Annotation[] parameterAnnotationArray = parameterAnnotations[paramIndex];
@@ -110,6 +116,11 @@ public class InvocationHandlerFactory {
                     final String paramName = param.value();
                     params.add(paramName);
                     indexToNameMap.put(paramIndex, paramName);
+                    break;
+                } else if(annotation.annotationType().isAssignableFrom(PathVariable.class)) {
+                    final PathVariable pathVariable = ((PathVariable) annotation);
+                    final String pathVariableName = pathVariable.value();
+                    indexToPathVariableMap.put(paramIndex, pathVariableName);
                     break;
                 }
             }
@@ -123,7 +134,8 @@ public class InvocationHandlerFactory {
         final Map<String, String> providedImplicitParams = new HashMap<>(interfaceContext.providedImplicitParams());
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         //
-        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams);
+        //
+        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap);
     }
 
     private static List<ImplicitParam> parseImplicitParams(ImplicitParams implicitParams, ImplicitParam implicitParam) {

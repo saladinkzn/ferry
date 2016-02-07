@@ -21,4 +21,6 @@ public interface MethodContext {
     Map<String, String> constImplicitParams();
 
     Map<String, String> providedImplicitParams();
+
+    Map<Integer,String> indexToPathVariableMap();
 }

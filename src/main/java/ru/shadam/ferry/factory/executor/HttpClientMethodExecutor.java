@@ -31,16 +31,22 @@ public class HttpClientMethodExecutor<T> implements MethodExecutor<T> {
     }
 
     @Override
-    public T execute(Map<String, ?> parameters) throws IOException {
-        final HttpUriRequest request = getHttpUriRequest(parameters);
+    public T execute(Map<String, ?> parameters, Map<String, ?> pathVariables) throws IOException {
+        final HttpUriRequest request = getHttpUriRequest(parameters, pathVariables);
         logger.debug("Executing request: {} {}", request.getMethod(), request.getURI());
         return httpClient.execute(request, responseHandler);
 
     }
 
-    public HttpUriRequest getHttpUriRequest(Map<String, ?> values) {
+    public HttpUriRequest getHttpUriRequest(Map<String, ?> values, Map<String, ?> pathVariables) {
         final RequestBuilder requestBuilder = RequestBuilder.create(method);
-        requestBuilder.setUri(url);
+        String replaceCandidate = url;
+        for(Map.Entry<String, ?> pathVariableEntry: pathVariables.entrySet()) {
+            final String pathVariableName = pathVariableEntry.getKey();
+            final String pathVariableValue = String.valueOf(pathVariableEntry.getValue());
+            replaceCandidate = replaceCandidate.replace(":" + pathVariableName, pathVariableValue);
+        }
+        requestBuilder.setUri(replaceCandidate);
         for(Map.Entry<String, ?> parameterEntry: values.entrySet()) {
             final String parameterKey = parameterEntry.getKey();
             requestBuilder.addParameter(parameterKey, String.valueOf(parameterEntry.getValue()));

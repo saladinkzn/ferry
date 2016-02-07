@@ -174,6 +174,17 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals("-alpha", constImplicitParams.get("v2"));
     }
 
+    @Test
+    public void pathVariableTest() throws Throwable {
+        final Class<PathVariableTestInterface> pathVariableTestInterfaceClass = PathVariableTestInterface.class;
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(pathVariableTestInterfaceClass);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, pathVariableTestInterfaceClass.getMethod("testMethod", Long.class));
+        final Map<Integer, String> indexToPathVariableMap = methodContext.indexToPathVariableMap();
+        Assert.assertNotNull(indexToPathVariableMap);
+        Assert.assertTrue(indexToPathVariableMap.containsKey(0));
+        Assert.assertEquals("id", indexToPathVariableMap.get(0));
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -238,5 +249,9 @@ public class InvocationHandlerFactoryTest {
     private interface MixedImplicitParamsTestInterface {
         @ImplicitParam(paramName = "v2", constValue = "-alpha")
         void testMethod();
+    }
+
+    private interface PathVariableTestInterface {
+        void testMethod(@PathVariable("id") Long id);
     }
 }

@@ -21,10 +21,12 @@ public class DefaultMethodContext implements MethodContext {
     //
     private final Map<String, String> constImplicitParams;
     private final Map<String, String> providedImplicitParams;
+    private final Map<Integer, String> indexToPathVariableMap;
 
-    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams) {
+    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams, Map<Integer, String> indexToPathVariableMap) {
         this.url = url;
         this.method = method;
+        this.indexToPathVariableMap = indexToPathVariableMap;
         this.interfaceContext = Objects.requireNonNull(interfaceContext);
         this.params = Objects.requireNonNull(params);
         this.indexToParamMap = Objects.requireNonNull(indexToParamMap);
@@ -68,6 +70,10 @@ public class DefaultMethodContext implements MethodContext {
         return providedImplicitParams;
     }
 
+    @Override
+    public Map<Integer, String> indexToPathVariableMap() {
+        return indexToPathVariableMap;
+    }
 
     @Override
     public String toString() {

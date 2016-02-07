@@ -7,5 +7,5 @@ import java.util.Map;
  * @author sala
  */
 public interface MethodExecutor<T> {
-    T execute(Map<String, ?> parameters) throws IOException;
+    T execute(Map<String, ?> parameters, Map<String, ?> pathVariables) throws IOException;
 }

@@ -9,6 +9,7 @@ import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +49,7 @@ class MethodInvocationHandler implements InvocationHandler {
         final Map<Integer, String> indexToParamMap = methodExecutionContext.indexToParamMap;
         final Map<String, String> constImplicitParamMap = methodExecutionContext.constImplicitParamMap;
         final Map<String, String> implicitParameterProviderMap = methodExecutionContext.implicitParameterProviderMap;
+        final Map<Integer, String> indexToPathVariableMap = methodExecutionContext.indexToPathVariableMap;
         //
         final Map<String, Object> paramToValueMap = new LinkedHashMap<>();
         for(Map.Entry<String, String> implicitParamEntry : constImplicitParamMap.entrySet()) {
@@ -95,8 +97,17 @@ class MethodInvocationHandler implements InvocationHandler {
             }
             paramToValueMap.put(paramName, value);
         }
-
-        return methodExecutor.execute(paramToValueMap);
+        final Map<String, Object> pathToVariableMap = new HashMap<>();
+        for (Map.Entry<Integer, String> indexToPathVariable: indexToPathVariableMap.entrySet()) {
+            final Integer index = indexToPathVariable.getKey();
+            final String pathVariable = indexToPathVariable.getValue();
+            final Object value = args[index];
+            if(logger.isTraceEnabled()) {
+                logger.trace("Adding path variable: {}={}", pathVariable, value);
+            }
+            pathToVariableMap.put(pathVariable, value);
+        }
+        return methodExecutor.execute(paramToValueMap, pathToVariableMap);
     }
 
     static class MethodExecutionContext<T> {
@@ -104,13 +115,16 @@ class MethodInvocationHandler implements InvocationHandler {
         private final Map<Integer, String> indexToParamMap;
         private final Map<String, String> constImplicitParamMap;
         private final Map<String, String> implicitParameterProviderMap;
+        private final Map<Integer, String> indexToPathVariableMap;
 
-        public MethodExecutionContext(MethodExecutor<T> methodExecutor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap) {
+        public MethodExecutionContext(MethodExecutor<T> methodExecutor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap) {
             this.methodExecutor = methodExecutor;
             this.indexToParamMap = indexToParamMap;
             this.constImplicitParamMap = constImplicitParamMap;
             this.implicitParameterProviderMap = implicitParameterProviderMap;
+            this.indexToPathVariableMap = indexToPathVariableMap;
         }
+
 
         @Override
         public String toString() {
@@ -119,6 +133,7 @@ class MethodInvocationHandler implements InvocationHandler {
                     ", indexToParamMap=" + indexToParamMap +
                     ", constImplicitParamMap=" + constImplicitParamMap +
                     ", implicitParameterProviderMap=" + implicitParameterProviderMap +
+                    ", indexToPathVariableMap=" + indexToPathVariableMap +
                     '}';
         }
     }
