@@ -1,4 +1,4 @@
-# Ferry
+# Ferry [![Build Status](https://travis-ci.org/saladinkzn/ferry.svg?branch=devel)](https://travis-ci.org/saladinkzn/ferry/branches)
 
 Library for creating spring-data style repositories but for rest apis.
 
