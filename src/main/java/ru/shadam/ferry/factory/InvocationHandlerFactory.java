@@ -53,7 +53,8 @@ public class InvocationHandlerFactory {
                 methodContext.indexToParamMap(),
                 methodContext.constImplicitParams(),
                 methodContext.providedImplicitParams(),
-                methodContext.indexToPathVariableMap()
+                methodContext.indexToPathVariableMap(),
+                methodContext.requestBodyIndex()
         );
     }
 
@@ -108,20 +109,26 @@ public class InvocationHandlerFactory {
         final Map<Integer, String> indexToNameMap = new LinkedHashMap<>();
         final Map<Integer, String> indexToPathVariableMap = new HashMap<>();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        Integer requestBodyIndex = null;
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {
             final Annotation[] parameterAnnotationArray = parameterAnnotations[paramIndex];
             for(Annotation annotation : parameterAnnotationArray) {
-                if(annotation.annotationType().isAssignableFrom(Param.class)) {
+                final Class<? extends Annotation> annotationType = annotation.annotationType();
+                if(annotationType.isAssignableFrom(Param.class)) {
                     final Param param = ((Param) annotation);
                     final String paramName = param.value();
                     params.add(paramName);
                     indexToNameMap.put(paramIndex, paramName);
                     break;
-                } else if(annotation.annotationType().isAssignableFrom(PathVariable.class)) {
+                } else if(annotationType.isAssignableFrom(PathVariable.class)) {
                     final PathVariable pathVariable = ((PathVariable) annotation);
                     final String pathVariableName = pathVariable.value();
                     indexToPathVariableMap.put(paramIndex, pathVariableName);
                     break;
+                } else if(annotationType.isAssignableFrom(RequestBody.class)) {
+                    if(requestBodyIndex == null) {
+                        requestBodyIndex = paramIndex;
+                    }
                 }
             }
         }
@@ -134,8 +141,7 @@ public class InvocationHandlerFactory {
         final Map<String, String> providedImplicitParams = new HashMap<>(interfaceContext.providedImplicitParams());
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         //
-        //
-        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap);
+        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap, requestBodyIndex);
     }
 
     private static List<ImplicitParam> parseImplicitParams(ImplicitParams implicitParams, ImplicitParam implicitParam) {

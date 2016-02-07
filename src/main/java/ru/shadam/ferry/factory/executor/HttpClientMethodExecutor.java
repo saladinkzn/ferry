@@ -4,10 +4,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,14 +33,18 @@ public class HttpClientMethodExecutor<T> implements MethodExecutor<T> {
     }
 
     @Override
-    public T execute(Map<String, ?> parameters, Map<String, ?> pathVariables) throws IOException {
-        final HttpUriRequest request = getHttpUriRequest(parameters, pathVariables);
+    public T execute(Map<String, ?> parameters, Map<String, ?> pathVariables, String requestBody) throws IOException {
+        final HttpUriRequest request = getHttpUriRequest(parameters, pathVariables, requestBody);
         logger.debug("Executing request: {} {}", request.getMethod(), request.getURI());
         return httpClient.execute(request, responseHandler);
 
     }
 
-    public HttpUriRequest getHttpUriRequest(Map<String, ?> values, Map<String, ?> pathVariables) {
+    HttpUriRequest getHttpUriRequest(Map<String, ?> values, Map<String, ?> pathVariables) {
+        return getHttpUriRequest(values, pathVariables, null);
+    }
+
+    HttpUriRequest getHttpUriRequest(Map<String, ?> values, Map<String, ?> pathVariables, String requestBody) {
         final RequestBuilder requestBuilder = RequestBuilder.create(method);
         String replaceCandidate = url;
         for(Map.Entry<String, ?> pathVariableEntry: pathVariables.entrySet()) {
@@ -50,6 +56,10 @@ public class HttpClientMethodExecutor<T> implements MethodExecutor<T> {
         for(Map.Entry<String, ?> parameterEntry: values.entrySet()) {
             final String parameterKey = parameterEntry.getKey();
             requestBuilder.addParameter(parameterKey, String.valueOf(parameterEntry.getValue()));
+        }
+        if(requestBody != null) {
+            final StringEntity stringEntity = new StringEntity(requestBody, StandardCharsets.UTF_8);
+            requestBuilder.setEntity(stringEntity);
         }
         return requestBuilder.build();
     }

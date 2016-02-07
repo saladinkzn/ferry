@@ -1,8 +1,6 @@
 package ru.shadam.ferry.integrationtest;
 
-import ru.shadam.ferry.annotations.ImplicitParam;
-import ru.shadam.ferry.annotations.Param;
-import ru.shadam.ferry.annotations.Url;
+import ru.shadam.ferry.annotations.*;
 import ru.shadam.ferry.integrationtest.dto.Album;
 import ru.shadam.ferry.integrationtest.dto.Photo;
 
@@ -30,4 +28,8 @@ public interface PhotoRepository {
     @Url("getAlbums")
     @ImplicitParam(paramName = "", providerName = "accessTokenProvider")
     List<Album> getAlbums2();
+
+    @Url("upload")
+    @RequestMethod("POST")
+    void uploadPhoto(@RequestBody String photoEntity);
 }

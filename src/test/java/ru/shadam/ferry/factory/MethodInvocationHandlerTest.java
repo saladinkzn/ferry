@@ -32,7 +32,7 @@ public class MethodInvocationHandlerTest {
         ), ImmutableMap.<String, ImplicitParameterProvider>of());
         final Object result = methodInvocationHandler.invoke(null, testMethod, new Object[]{"value1", "value2"});
         final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class));
+        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class), Mockito.isNull(String.class));
         final Map value = mapArgumentCaptor.getValue();
         Assert.assertEquals("value1", value.get("param1"));
         Assert.assertEquals("value2", value.get("param2"));
@@ -54,7 +54,7 @@ public class MethodInvocationHandlerTest {
                 ), ImmutableMap.<String, ImplicitParameterProvider>of());
         final Object result = methodInvocationHandler.invoke(null, method, new Object[0]);
         final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class));
+        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class), Mockito.isNull(String.class));
         final Map paramsMap = mapArgumentCaptor.getValue();
         Assert.assertEquals("constValue", paramsMap.get("constParam"));
     }
@@ -81,7 +81,7 @@ public class MethodInvocationHandlerTest {
         );
         final Object result = methodInvocationHandler.invoke(null, method, new Object[0]);
         final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class));
+        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class), Mockito.isNull(String.class));
         final Map value = mapArgumentCaptor.getValue();
         Assert.assertEquals("providedValue", value.get("param1"));
     }
@@ -113,7 +113,7 @@ public class MethodInvocationHandlerTest {
         );
         final Object result = methodInvocationHandler.invoke(null, method, new Object[0]);
         final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class));
+        Mockito.verify(methodExecutor, Mockito.only()).execute(mapArgumentCaptor.capture(), Mockito.anyMapOf(String.class, Object.class), Mockito.isNull(String.class));
         final Map value = mapArgumentCaptor.getValue();
         Assert.assertEquals("providedValue", value.get("param1"));
     }
@@ -136,11 +136,39 @@ public class MethodInvocationHandlerTest {
         );
         final Object result = methodInvocationHandler.invoke(null, method, new Object[] { 1L });
         final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        Mockito.verify(methodExecutor, Mockito.only()).execute(Mockito.any(Map.class), mapArgumentCaptor.capture());
+        Mockito.verify(methodExecutor, Mockito.only()).execute(Mockito.any(Map.class), mapArgumentCaptor.capture(), Mockito.isNull(String.class));
         final Map value = mapArgumentCaptor.getValue();
         Assert.assertTrue(value.containsKey("id"));
         Assert.assertEquals(1L, value.get("id"));
+    }
 
+    @Test
+    public void testRequestBody() throws Throwable {
+        final Method method = TestInterface.class.getMethod("testMethod");
+        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
+        final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
+                ImmutableMap.of(
+                        method,
+                        new MethodInvocationHandler.MethodExecutionContext<>(
+                                methodExecutor,
+                                ImmutableMap.<Integer, String>of(),
+                                ImmutableMap.<String, String>of(),
+                                ImmutableMap.<String, String>of(),
+                                ImmutableMap.<Integer, String>of(),
+                                0
+                        )
+                ), ImmutableMap.<String, ImplicitParameterProvider>of()
+        );
+        final String param = "{ \"id\": 1, \"name\" : \"test\"}";
+        final Object result = methodInvocationHandler.invoke(null, method, new Object[]{param});
+        final ArgumentCaptor<String> requestBodyCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(methodExecutor, Mockito.only()).execute(
+            Mockito.anyMapOf(String.class, Object.class),
+            Mockito.anyMapOf(String.class, Object.class),
+            requestBodyCaptor.capture()
+        );
+        final String requestBody = requestBodyCaptor.getValue();
+        Assert.assertEquals(param, requestBody);
     }
 
     private interface TestInterface {

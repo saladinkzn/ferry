@@ -185,6 +185,15 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals("id", indexToPathVariableMap.get(0));
     }
 
+    @Test
+    public void requestBodyTest() throws Throwable {
+        final Class<RequestBodyTestInterface> requestBodyTestInterfaceClass = RequestBodyTestInterface.class;
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(requestBodyTestInterfaceClass);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, requestBodyTestInterfaceClass.getMethod("uploadPhoto", String.class));
+        int requestBodyIndex = methodContext.requestBodyIndex();
+        Assert.assertEquals(0, requestBodyIndex);
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -253,5 +262,10 @@ public class InvocationHandlerFactoryTest {
 
     private interface PathVariableTestInterface {
         void testMethod(@PathVariable("id") Long id);
+    }
+
+    private interface RequestBodyTestInterface {
+        @RequestMethod("POST")
+        void uploadPhoto(@RequestBody String requestBody);
     }
 }

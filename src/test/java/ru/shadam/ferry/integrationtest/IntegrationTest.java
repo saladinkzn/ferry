@@ -1,8 +1,11 @@
 package ru.shadam.ferry.integrationtest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.CharStreams;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,6 +18,7 @@ import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 import ru.shadam.ferry.integrationtest.dto.Album;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 /**
@@ -99,6 +103,24 @@ public class IntegrationTest {
         //
         Assert.assertEquals("GET", value.getMethod());
         Assert.assertEquals("https://api.vk.com/methods/photos.getAlbums?access_token=ACCESS_TOKEN", value.getURI().toString());
+    }
+
+    @Test
+    public void testPhotoRepository4() throws IOException {
+        final HttpClient httpClient = Mockito.mock(HttpClient.class);
+        final ArgumentCaptor<HttpUriRequest> httpUriRequestArgumentCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final ClientImplementationFactory clientImplementationFactory = new DefaultClientImplementationFactory(httpClient, objectMapper);
+        final PhotoRepository interfaceImplementation = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
+        final String photoEntity = "{ name: \"My beach photo\" }";
+        interfaceImplementation.uploadPhoto(photoEntity);
+        Mockito.verify(httpClient, Mockito.only()).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler<?>>any());
+        final HttpUriRequest httpUriRequest = httpUriRequestArgumentCaptor.getValue();
+        Assert.assertEquals("POST", httpUriRequest.getMethod());
+        Assert.assertEquals("https://api.vk.com/methods/photos.upload", httpUriRequest.getURI().toString());
+        final HttpEntityEnclosingRequestBase entityEnclosingRequestBase = (HttpEntityEnclosingRequestBase) httpUriRequest;
+        final HttpEntity httpEntity = entityEnclosingRequestBase.getEntity();
+        Assert.assertEquals(photoEntity, CharStreams.toString(new InputStreamReader(httpEntity.getContent())));
     }
 
 }

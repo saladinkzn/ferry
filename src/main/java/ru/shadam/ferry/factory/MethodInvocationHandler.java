@@ -107,7 +107,18 @@ class MethodInvocationHandler implements InvocationHandler {
             }
             pathToVariableMap.put(pathVariable, value);
         }
-        return methodExecutor.execute(paramToValueMap, pathToVariableMap);
+        final String requestBody;
+        if(methodExecutionContext.requestBodyParamIndex != null) {
+            final Object value = args[methodExecutionContext.requestBodyParamIndex];
+            // TODO: design a way to provide converter
+            if(logger.isTraceEnabled()) {
+                logger.trace("Adding request body: {}", String.valueOf(value));
+            }
+            requestBody = String.valueOf(value);
+        } else {
+            requestBody = null;
+        }
+        return methodExecutor.execute(paramToValueMap, pathToVariableMap, requestBody);
     }
 
     static class MethodExecutionContext<T> {
@@ -116,13 +127,20 @@ class MethodInvocationHandler implements InvocationHandler {
         private final Map<String, String> constImplicitParamMap;
         private final Map<String, String> implicitParameterProviderMap;
         private final Map<Integer, String> indexToPathVariableMap;
+        private final Integer requestBodyParamIndex;
 
+        @Deprecated
         public MethodExecutionContext(MethodExecutor<T> methodExecutor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap) {
+            this(methodExecutor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null);
+        }
+
+        public MethodExecutionContext(MethodExecutor<T> methodExecutor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap, Integer requestBodyParamIndex) {
             this.methodExecutor = methodExecutor;
             this.indexToParamMap = indexToParamMap;
             this.constImplicitParamMap = constImplicitParamMap;
             this.implicitParameterProviderMap = implicitParameterProviderMap;
             this.indexToPathVariableMap = indexToPathVariableMap;
+            this.requestBodyParamIndex = requestBodyParamIndex;
         }
 
 
