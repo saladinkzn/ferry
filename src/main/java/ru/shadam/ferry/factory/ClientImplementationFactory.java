@@ -2,6 +2,7 @@ package ru.shadam.ferry.factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
@@ -19,8 +20,8 @@ public class ClientImplementationFactory {
     private final InvocationHandlerFactory invocationHandlerFactory;
     private final Map<String, ImplicitParameterProvider> implicitParameterProviders = new HashMap<>();
 
-    public ClientImplementationFactory(MethodExecutorFactory methodExecutorFactory) {
-        this.invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, implicitParameterProviders);
+    public ClientImplementationFactory(MethodExecutorFactory methodExecutorFactory, RequestBodyConverter requestBodyConverter) {
+        this.invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, implicitParameterProviders, requestBodyConverter);
     }
 
     public <T> T getInterfaceImplementation(Class<T> interfaceClass) {

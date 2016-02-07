@@ -132,8 +132,7 @@ public class MethodInvocationHandlerTest {
                                 ImmutableMap.<String, String>of(),
                                 ImmutableMap.of(0, "id")
                         )
-                ), ImmutableMap.<String, ImplicitParameterProvider>of()
-        );
+                ), ImmutableMap.<String, ImplicitParameterProvider>of());
         final Object result = methodInvocationHandler.invoke(null, method, new Object[] { 1L });
         final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(methodExecutor, Mockito.only()).execute(Mockito.any(Map.class), mapArgumentCaptor.capture(), Mockito.isNull(String.class));
@@ -157,8 +156,7 @@ public class MethodInvocationHandlerTest {
                                 ImmutableMap.<Integer, String>of(),
                                 0
                         )
-                ), ImmutableMap.<String, ImplicitParameterProvider>of()
-        );
+                ), ImmutableMap.<String, ImplicitParameterProvider>of());
         final String param = "{ \"id\": 1, \"name\" : \"test\"}";
         final Object result = methodInvocationHandler.invoke(null, method, new Object[]{param});
         final ArgumentCaptor<String> requestBodyCaptor = ArgumentCaptor.forClass(String.class);

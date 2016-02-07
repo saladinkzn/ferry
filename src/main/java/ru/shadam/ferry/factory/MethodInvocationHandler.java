@@ -2,6 +2,7 @@ package ru.shadam.ferry.factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
@@ -23,12 +24,33 @@ class MethodInvocationHandler implements InvocationHandler {
     //
     private final Map<Method, MethodExecutionContext<?>> methodExecutionContextMap;
     private final Map<String, ? extends ImplicitParameterProvider> providerMap;
+    private final RequestBodyConverter requestBodyConverter;
 
     public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ? extends ImplicitParameterProvider> providerMap) {
         Objects.requireNonNull(methodExecutionContextMap);
         Objects.requireNonNull(providerMap);
         this.methodExecutionContextMap = methodExecutionContextMap;
         this.providerMap = providerMap;
+        this.requestBodyConverter = new RequestBodyConverter() {
+            @Override
+            public <T> String convert(T value) {
+                return String.valueOf(value);
+            }
+
+            @Override
+            public <T> boolean canConvert(Class<T> clazz) {
+                return true;
+            }
+        };
+    }
+
+    public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ? extends ImplicitParameterProvider> providerMap, RequestBodyConverter requestBodyConverter) {
+        Objects.requireNonNull(methodExecutionContextMap);
+        Objects.requireNonNull(providerMap);
+        Objects.requireNonNull(requestBodyConverter);
+        this.methodExecutionContextMap = methodExecutionContextMap;
+        this.providerMap = providerMap;
+        this.requestBodyConverter = requestBodyConverter;
     }
 
     @Override
@@ -110,11 +132,10 @@ class MethodInvocationHandler implements InvocationHandler {
         final String requestBody;
         if(methodExecutionContext.requestBodyParamIndex != null) {
             final Object value = args[methodExecutionContext.requestBodyParamIndex];
-            // TODO: design a way to provide converter
+            requestBody = requestBodyConverter.convert(value);
             if(logger.isTraceEnabled()) {
-                logger.trace("Adding request body: {}", String.valueOf(value));
+                logger.trace("Adding request body: {}", requestBody);
             }
-            requestBody = String.valueOf(value);
         } else {
             requestBody = null;
         }

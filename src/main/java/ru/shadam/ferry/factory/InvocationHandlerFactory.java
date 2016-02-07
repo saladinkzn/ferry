@@ -7,6 +7,7 @@ import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.analyze.impl.DefaultInterfaceContext;
 import ru.shadam.ferry.analyze.impl.DefaultMethodContext;
 import ru.shadam.ferry.annotations.*;
+import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
@@ -25,11 +26,32 @@ public class InvocationHandlerFactory {
     //
     private final MethodExecutorFactory methodExecutorFactory;
     private final Map<String, ImplicitParameterProvider> implicitParameterProviderMap;
+    private final RequestBodyConverter requestBodyConverter;
 
+    @Deprecated
     public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory, Map<String, ImplicitParameterProvider> implicitParameterProviderMap) {
+        this(methodExecutorFactory, implicitParameterProviderMap, new RequestBodyConverter() {
+            @Override
+            public <T> String convert(T value) {
+                return String.valueOf(value);
+            }
+
+            @Override
+            public <T> boolean canConvert(Class<T> clazz) {
+                return true;
+            }
+        });
+    }
+
+    public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory,
+                                    Map<String, ImplicitParameterProvider> implicitParameterProviderMap,
+                                    RequestBodyConverter requestBodyConverter) {
+        Objects.requireNonNull(methodExecutorFactory);
         Objects.requireNonNull(implicitParameterProviderMap);
+        Objects.requireNonNull(requestBodyConverter);
         this.methodExecutorFactory = methodExecutorFactory;
         this.implicitParameterProviderMap = implicitParameterProviderMap;
+        this.requestBodyConverter = requestBodyConverter;
     }
 
     public InvocationHandler createInvocationHandler(Class<?> clazz) {
@@ -44,7 +66,7 @@ public class InvocationHandlerFactory {
             methodExecutionContextMap.put(method, getMethodExecutionContext(methodContext));
         }
 
-        return new MethodInvocationHandler(methodExecutionContextMap, implicitParameterProviderMap);
+        return new MethodInvocationHandler(methodExecutionContextMap, implicitParameterProviderMap, requestBodyConverter);
     }
 
     private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) {

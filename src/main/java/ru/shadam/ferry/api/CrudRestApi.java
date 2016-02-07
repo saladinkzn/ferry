@@ -1,6 +1,7 @@
 package ru.shadam.ferry.api;
 
 import ru.shadam.ferry.annotations.PathVariable;
+import ru.shadam.ferry.annotations.RequestBody;
 import ru.shadam.ferry.annotations.RequestMethod;
 import ru.shadam.ferry.annotations.Url;
 
@@ -20,11 +21,11 @@ public interface CrudRestApi<T, ID> {
 
     @RequestMethod("POST")
     @Url("/:id")
-    T update(@PathVariable("id") ID id, T value);
+    T update(@PathVariable("id") ID id, @RequestBody T value);
 
     @RequestMethod("PUT")
     @Url("/")
-    T create(T value);
+    T create(@RequestBody T value);
 
     @RequestMethod("DELETE")
     @Url("/:id")
