@@ -1,6 +1,6 @@
 - [x] Support for getting param name from implicit provider (overridable )
 - [x] Class-level ImplicitParam support
 - [x] Path variables support
-- [ ] Crud methods support (CrudRepository-like)
+- [x] Crud methods support (CrudRepository-like)
 - [ ] Javadoc improvement
 - [ ] Spring integration
