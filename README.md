@@ -7,8 +7,12 @@ Usage:
 
 Add dependency:
 ```groovy
+repositories {
+    url 'http://oss.jfrog.org/artifactory/oss-snapshot-local'
+}
+
 dependencies {
-    compile 'ru.shadam.ferry:ferry:0.1.0-SNAPSHOT'
+    compile 'ru.shadam.ferry:ferry-simple:0.1.0-SNAPSHOT'
 }
 ```
 

@@ -3,5 +3,5 @@
 - [x] Path variables support
 - [x] Crud methods support (CrudRepository-like)
 - [ ] Javadoc improvement
-- [ ] Custom ResponseHandler interface to unbound from HttpClient library
+- [ ] Custom ResponseHandler interface to untie from HttpClient library
 - [ ] Spring integration

@@ -1,101 +1,103 @@
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.artifactory'
+subprojects { project ->
+  apply plugin: 'maven-publish'
+  apply plugin: 'com.jfrog.artifactory'
 
-project.ext {
-  project_website = "https://github.com/${developerId}/${projectId}"
-  project_scm = "scm:git@github.com:${developerId}/${projectId}.git"
-  license_url = "https://raw.github.com/${developerId}/${projectId}/master/LICENSE"
-}
+  project.ext {
+    project_website = "https://github.com/${developerId}/${projectId}"
+    project_scm = "scm:git@github.com:${developerId}/${projectId}.git"
+    license_url = "https://raw.github.com/${developerId}/${projectId}/master/LICENSE"
+  }
 
-compileJava.dependsOn(processResources)
+  compileJava.dependsOn(processResources)
 
-task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates sources jar') {
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
+  task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates sources jar') {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
 
-task javadocJar(type: Jar, description: 'Creates javadoc jar') {
-  dependsOn 'javadoc'
-}
+  task javadocJar(type: Jar, description: 'Creates javadoc jar') {
+    dependsOn 'javadoc'
+  }
 
-artifacts {
-  archives sourcesJar, javadocJar
-}
+  artifacts {
+    archives sourcesJar, javadocJar
+  }
 
-def rootProject = project
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      pom.withXml {
-        asNode().with {
-          appendNode('description', rootProject.description)
-          appendNode('url', rootProject.project_website)
-          appendNode('scm').with {
-            appendNode('url', rootProject.project_scm)
-            appendNode('connection', rootProject.project_scm)
-            appendNode('developerConnection', rootProject.project_scm)
-          }
-          appendNode('licenses').with {
-            appendNode('license').with {
-              appendNode('name', "${rootProject.license}")
-              appendNode('url', rootProject.license_url)
-              appendNode('distribution', 'repo')
+  def rootProject = project
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        pom.withXml {
+          asNode().with {
+            appendNode('description', rootProject.description)
+            appendNode('url', rootProject.project_website)
+            appendNode('scm').with {
+              appendNode('url', rootProject.project_scm)
+              appendNode('connection', rootProject.project_scm)
+              appendNode('developerConnection', rootProject.project_scm)
             }
-          }
-          appendNode('developers').with {
-            appendNode('developer').with {
-              appendNode('id', rootProject.developerId)
-              appendNode('name', rootProject.developerName)
+            appendNode('licenses').with {
+              appendNode('license').with {
+                appendNode('name', "${rootProject.license}")
+                appendNode('url', rootProject.license_url)
+                appendNode('distribution', 'repo')
+              }
             }
+            appendNode('developers').with {
+              appendNode('developer').with {
+                appendNode('id', rootProject.developerId)
+                appendNode('name', rootProject.developerName)
+              }
+            }
+            it
           }
-          it
+        }
+
+        from components.java
+//
+        artifact sourcesJar {
+          classifier 'sources'
+        }
+
+        artifact javadocJar {
+          classifier "javadoc"
         }
       }
-
-      from components.java
-//
-      artifact sourcesJar {
-        classifier 'sources'
-      }
-
-      artifact javadocJar {
-        classifier "javadoc"
-      }
     }
   }
-}
 
-project.tasks.build.finalizedBy project.tasks.publishToMavenLocal
+  project.tasks.build.finalizedBy project.tasks.publishToMavenLocal
 
-if(file('local.gradle').exists()) {
-  apply from: 'local.gradle'
-}
+  if (file('local.gradle').exists()) {
+    apply from: 'local.gradle'
+  }
 // oss.jfrog.org artifactory repository
-def bintrayUser = System.getenv('BINTRAY_USER') ?: ''
-def bintrayKey = System.getenv('BINTRAY_KEY') ?: ''
+  def bintrayUser = System.getenv('BINTRAY_USER') ?: ''
+  def bintrayKey = System.getenv('BINTRAY_KEY') ?: ''
 
-task debugCredentials() << {
-  println "bintrayUser: $bintrayUser, bintrayKey: $bintrayKey"
-}
-
-artifactory {
-  contextUrl = 'https://oss.jfrog.org/artifactory'
-  publish {
-    repository {
-      if (project.version.endsWith('-SNAPSHOT'))
-        repoKey = 'oss-snapshot-local'
-      else
-        repoKey = 'oss-release-local'
-      username = bintrayUser
-      password = bintrayKey
-    }
-    defaults {
-      publications 'mavenJava'
-    }
+  task debugCredentials() << {
+    println "bintrayUser: $bintrayUser, bintrayKey: $bintrayKey"
   }
-  resolve {
-    repository {
-      repoKey = 'repo'
+
+  artifactory {
+    contextUrl = 'https://oss.jfrog.org/artifactory'
+    publish {
+      repository {
+        if (project.version.endsWith('-SNAPSHOT'))
+          repoKey = 'oss-snapshot-local'
+        else
+          repoKey = 'oss-release-local'
+        username = bintrayUser
+        password = bintrayKey
+      }
+      defaults {
+        publications 'mavenJava'
+      }
+    }
+    resolve {
+      repository {
+        repoKey = 'repo'
+      }
     }
   }
 }
