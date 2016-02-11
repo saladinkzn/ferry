@@ -8,7 +8,7 @@ Usage:
 Add dependency:
 ```groovy
 repositories {
-    url 'http://oss.jfrog.org/artifactory/oss-snapshot-local'
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
 }
 
 dependencies {

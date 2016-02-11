@@ -8,7 +8,6 @@ import java.util.Map;
  *
  * @author sala
  * @see MethodExecutorFactory
- * @see HttpClientMethodExecutorFactory
  */
 public interface MethodExecutor<T> {
     /**
