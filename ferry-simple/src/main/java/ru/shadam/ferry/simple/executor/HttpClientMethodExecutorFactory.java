@@ -1,13 +1,11 @@
 package ru.shadam.ferry.simple.executor;
 
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
-import ru.shadam.ferry.simple.responsehandler.ResponseHandlerFactory;
 
 import java.util.Objects;
 
@@ -18,15 +16,13 @@ public class HttpClientMethodExecutorFactory implements MethodExecutorFactory {
     private static final Logger logger = LoggerFactory.getLogger(HttpClientMethodExecutorFactory.class);
 
     private final HttpClient httpClient;
-    private final ResponseHandlerFactory responseHandlerFactory;
 
-    public HttpClientMethodExecutorFactory(HttpClient httpClient, ResponseHandlerFactory responseHandlerFactory) {
+    public HttpClientMethodExecutorFactory(HttpClient httpClient) {
         this.httpClient = Objects.requireNonNull(httpClient);
-        this.responseHandlerFactory = Objects.requireNonNull(responseHandlerFactory);
     }
 
     @Override
-    public <T> MethodExecutor<T> getRequestExecutor(MethodContext methodContext) {
+    public MethodExecutor getRequestExecutor(MethodContext methodContext) {
         Objects.requireNonNull(methodContext);
         //
         logger.debug("Getting request executor for method context: {}", methodContext);
@@ -34,8 +30,6 @@ public class HttpClientMethodExecutorFactory implements MethodExecutorFactory {
         final String url = methodContext.url();
         final String method = methodContext.method();
         //
-        final ResponseHandler<T> responseHandler = responseHandlerFactory.getResponseHandler(methodContext.returnType());
-
-        return new HttpClientMethodExecutor<T>(httpClient, method, url, responseHandler);
+        return new HttpClientMethodExecutor(httpClient, method, url);
     }
 }

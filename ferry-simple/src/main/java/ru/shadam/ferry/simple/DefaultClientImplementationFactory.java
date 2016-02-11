@@ -20,7 +20,8 @@ import java.util.Arrays;
 public class DefaultClientImplementationFactory extends ClientImplementationFactory {
     public DefaultClientImplementationFactory(HttpClient httpClient, ObjectMapper objectMapper) {
         super(
-                new HttpClientMethodExecutorFactory(httpClient, new ObjectMapperResponseHandlerFactory(objectMapper)),
+                new HttpClientMethodExecutorFactory(httpClient),
+                new ObjectMapperResponseHandlerFactory(objectMapper),
                 new CompositeRequestBodyConverter(Arrays.asList(new StringRequestBodyConverter(), new ObjectMapperRequestBodyConverter(objectMapper)))
         );
     }

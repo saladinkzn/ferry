@@ -2,6 +2,9 @@ package ru.shadam.ferry.simple.responsehandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.ResponseHandler;
+import ru.shadam.ferry.analyze.MethodContext;
+import ru.shadam.ferry.factory.result.ResultExtractor;
+import ru.shadam.ferry.factory.result.ResultExtractorFactory;
 
 import java.lang.reflect.Type;
 
@@ -12,7 +15,7 @@ import java.lang.reflect.Type;
  * @see ResponseHandlerFactory
  * @see ObjectMapper
  */
-public class ObjectMapperResponseHandlerFactory implements ResponseHandlerFactory {
+public class ObjectMapperResponseHandlerFactory implements ResultExtractorFactory {
     private final ObjectMapper objectMapper;
 
     public ObjectMapperResponseHandlerFactory(ObjectMapper objectMapper) {
@@ -20,7 +23,7 @@ public class ObjectMapperResponseHandlerFactory implements ResponseHandlerFactor
     }
 
     @Override
-    public <T> ResponseHandler<T> getResponseHandler(Type type) {
-        return new ObjectMapperResponseHandler<>(objectMapper, type);
+    public <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext) {
+        return new ObjectMapperResponseHandler<T>(objectMapper, methodContext.returnType());
     }
 }

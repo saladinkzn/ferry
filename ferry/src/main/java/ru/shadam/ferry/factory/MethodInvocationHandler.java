@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
+import ru.shadam.ferry.factory.response.ResponseWrapper;
+import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 
@@ -67,7 +69,6 @@ class MethodInvocationHandler implements InvocationHandler {
 
     private <T> T execute(MethodExecutionContext<T> methodExecutionContext, Object[] args) throws IOException {
         //
-        final MethodExecutor<T> methodExecutor = methodExecutionContext.methodExecutor;
         final Map<Integer, String> indexToParamMap = methodExecutionContext.indexToParamMap;
         final Map<String, String> constImplicitParamMap = methodExecutionContext.constImplicitParamMap;
         final Map<String, String> implicitParameterProviderMap = methodExecutionContext.implicitParameterProviderMap;
@@ -139,11 +140,16 @@ class MethodInvocationHandler implements InvocationHandler {
         } else {
             requestBody = null;
         }
-        return methodExecutor.execute(paramToValueMap, pathToVariableMap, requestBody);
+        final MethodExecutor methodExecutor = methodExecutionContext.methodExecutor;
+        final ResultExtractor<T> resultExtractor = methodExecutionContext.resultExtractor;
+        final ResponseWrapper responseWrapper = methodExecutor.execute(paramToValueMap, pathToVariableMap, requestBody);
+        final T result = resultExtractor.extractResponse(responseWrapper);
+        return result;
     }
 
     static class MethodExecutionContext<T> {
-        private final MethodExecutor<T> methodExecutor;
+        private final MethodExecutor methodExecutor;
+        private final ResultExtractor<T> resultExtractor;
         private final Map<Integer, String> indexToParamMap;
         private final Map<String, String> constImplicitParamMap;
         private final Map<String, String> implicitParameterProviderMap;
@@ -151,12 +157,18 @@ class MethodInvocationHandler implements InvocationHandler {
         private final Integer requestBodyParamIndex;
 
         @Deprecated
-        public MethodExecutionContext(MethodExecutor<T> methodExecutor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap) {
-            this(methodExecutor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null);
+        public MethodExecutionContext(MethodExecutor methodExecutor, ResultExtractor<T> resultExtractor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap) {
+            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null);
         }
 
-        public MethodExecutionContext(MethodExecutor<T> methodExecutor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap, Integer requestBodyParamIndex) {
+        public MethodExecutionContext(MethodExecutor methodExecutor, ResultExtractor<T> resultExtractor,
+                                      Map<Integer, String> indexToParamMap,
+                                      Map<String, String> constImplicitParamMap,
+                                      Map<String, String> implicitParameterProviderMap,
+                                      Map<Integer, String> indexToPathVariableMap,
+                                      Integer requestBodyParamIndex) {
             this.methodExecutor = methodExecutor;
+            this.resultExtractor = resultExtractor;
             this.indexToParamMap = indexToParamMap;
             this.constImplicitParamMap = constImplicitParamMap;
             this.implicitParameterProviderMap = implicitParameterProviderMap;

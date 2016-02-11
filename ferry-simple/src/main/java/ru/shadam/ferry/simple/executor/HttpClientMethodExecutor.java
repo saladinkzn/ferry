@@ -1,13 +1,15 @@
 package ru.shadam.ferry.simple.executor;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
+import ru.shadam.ferry.factory.response.DefaultResponseWrapper;
+import ru.shadam.ferry.factory.response.ResponseWrapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,28 +19,34 @@ import java.util.Objects;
 /**
  * @author sala
  */
-public class HttpClientMethodExecutor<T> implements MethodExecutor<T> {
+public class HttpClientMethodExecutor implements MethodExecutor {
     // TODO: use this logger u bastard
     private static final Logger logger = LoggerFactory.getLogger(HttpClientMethodExecutor.class);
     private final HttpClient httpClient;
     private final String method;
     private final String url;
-    private final ResponseHandler<T> responseHandler;
 
 
-    public HttpClientMethodExecutor(HttpClient httpClient, String method, String url, ResponseHandler<T> responseHandler) {
+    public HttpClientMethodExecutor(HttpClient httpClient, String method, String url) {
         this.httpClient = Objects.requireNonNull(httpClient);
         this.method = Objects.requireNonNull(method);
         this.url = Objects.requireNonNull(url);
-        this.responseHandler = Objects.requireNonNull(responseHandler);
     }
 
     @Override
-    public T execute(Map<String, ?> parameters, Map<String, ?> pathVariables, String requestBody) throws IOException {
+    public ResponseWrapper execute(Map<String, ?> parameters, Map<String, ?> pathVariables, String requestBody) throws IOException {
         final HttpUriRequest request = getHttpUriRequest(parameters, pathVariables, requestBody);
         logger.debug("Executing request: {} {}", request.getMethod(), request.getURI());
-        return httpClient.execute(request, responseHandler);
+        return convert(httpClient.execute(request));
 
+    }
+
+    private ResponseWrapper convert(HttpResponse execute) throws IOException {
+        if(execute == null) {
+            // TODO: ???
+            return null;
+        }
+        return new DefaultResponseWrapper(execute.getEntity().getContent());
     }
 
     HttpUriRequest getHttpUriRequest(Map<String, ?> values, Map<String, ?> pathVariables) {
@@ -71,7 +79,6 @@ public class HttpClientMethodExecutor<T> implements MethodExecutor<T> {
         return "MethodExecutor{" +
                 "method='" + method + '\'' +
                 ", url='" + url + '\'' +
-                ", responseHandler=" + responseHandler +
                 '}';
     }
 }

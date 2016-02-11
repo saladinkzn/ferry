@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.CharStreams;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Assert;
@@ -42,7 +41,7 @@ public class IntegrationTest {
         final ObjectMapper objectMapper = new ObjectMapper();
         final PhotoRepository photoRepository = new DefaultClientImplementationFactory(httpClient, objectMapper).getInterfaceImplementation(PhotoRepository.class);
         photoRepository.getPhotos(1L, 0L, null);
-        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
+        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture());
         final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
         Assert.assertNotNull(photoRepository);
         //
@@ -68,7 +67,7 @@ public class IntegrationTest {
         final PhotoRepository photoRepository = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
         //
         final List<Album> albums = photoRepository.getAlbums(123L, "456", 100, 200);
-        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
+        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture());
         final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
         //
         Assert.assertEquals("GET", value.getMethod());
@@ -98,7 +97,7 @@ public class IntegrationTest {
         final PhotoRepository photoRepository = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
         //
         final List<Album> albums = photoRepository.getAlbums2();
-        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler>any());
+        Mockito.verify(httpClient).execute(httpUriRequestArgumentCaptor.capture());
         final HttpUriRequest value = httpUriRequestArgumentCaptor.getValue();
         //
         Assert.assertEquals("GET", value.getMethod());
@@ -114,7 +113,7 @@ public class IntegrationTest {
         final PhotoRepository interfaceImplementation = clientImplementationFactory.getInterfaceImplementation(PhotoRepository.class);
         final String photoEntity = "{ name: \"My beach photo\" }";
         interfaceImplementation.uploadPhoto(photoEntity);
-        Mockito.verify(httpClient, Mockito.only()).execute(httpUriRequestArgumentCaptor.capture(), Mockito.<ResponseHandler<?>>any());
+        Mockito.verify(httpClient, Mockito.only()).execute(httpUriRequestArgumentCaptor.capture());
         final HttpUriRequest httpUriRequest = httpUriRequestArgumentCaptor.getValue();
         Assert.assertEquals("POST", httpUriRequest.getMethod());
         Assert.assertEquals("https://api.vk.com/methods/photos.upload", httpUriRequest.getURI().toString());
