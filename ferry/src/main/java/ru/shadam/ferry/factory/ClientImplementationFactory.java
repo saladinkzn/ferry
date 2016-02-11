@@ -21,7 +21,6 @@ import java.util.Objects;
  * </code></pre>
  *
  * @author sala
- * @see DefaultClientImplementationFactory
  */
 public class ClientImplementationFactory {
     private static final Logger logger = LoggerFactory.getLogger(ClientImplementationFactory.class);

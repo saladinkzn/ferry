@@ -9,7 +9,6 @@ import ru.shadam.ferry.analyze.MethodContext;
  *
  * @see MethodContext
  * @see MethodExecutor
- * @see HttpClientMethodExecutorFactory
  */
 public interface MethodExecutorFactory {
     /**
