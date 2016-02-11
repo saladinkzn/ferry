@@ -1,18 +1,15 @@
 package ru.shadam.ferry.simple.responsehandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.ResponseHandler;
 import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
 
-import java.lang.reflect.Type;
-
 /**
- * Jackson-based {@link ResponseHandlerFactory} implementation
+ * Jackson-based {@link ResultExtractorFactory} implementation
  *
  * @author sala
- * @see ResponseHandlerFactory
+ * @see ResultExtractorFactory
  * @see ObjectMapper
  */
 public class ObjectMapperResponseHandlerFactory implements ResultExtractorFactory {

@@ -13,6 +13,9 @@ import ru.shadam.ferry.analyze.MethodContext;
 public interface MethodExecutorFactory {
     /**
      * Returns method executor for given method context
+     *
+     * @param methodContext context of method to create request executor for
+     * @return MethodExecutor to execute request
      */
     MethodExecutor getRequestExecutor(MethodContext methodContext);
 }
