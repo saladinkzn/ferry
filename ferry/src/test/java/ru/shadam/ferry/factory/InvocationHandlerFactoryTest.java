@@ -12,6 +12,8 @@ import ru.shadam.ferry.annotations.*;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -194,6 +196,61 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals(0, requestBodyIndex);
     }
 
+    @Test
+    public void testMethodReturnTypeGeneric() throws Throwable {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(ConcreteType.class);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, ConcreteType.class.getMethod("getAll"));
+        final Type type = methodContext.returnType();
+        Assert.assertTrue(type instanceof ParameterizedType);
+        final ParameterizedType parameterizedType = (ParameterizedType) type;
+        Assert.assertEquals(List.class, parameterizedType.getRawType());
+
+        final Type typeArgument = parameterizedType.getActualTypeArguments()[0];
+        Assert.assertEquals(String.class, typeArgument);
+    }
+
+    @Test
+    public void testMethodReturnTypeGeneric2() throws Throwable {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(ConcreteType.class);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, ConcreteType.class.getMethod("getAll2"));
+        final Type type = methodContext.returnType();
+        Assert.assertTrue(type instanceof ParameterizedType);
+        final ParameterizedType parameterizedType = (ParameterizedType) type;
+        Assert.assertEquals(List.class, parameterizedType.getRawType());
+
+        final Type typeArgument = parameterizedType.getActualTypeArguments()[0];
+        Assert.assertEquals(String.class, typeArgument);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testMethodReturnTypeGeneric3() throws Throwable {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(MyClass.class);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, MyClass.class.getMethod("getAll3"));
+    }
+
+    @Test
+    public void testMethodReturnTypeGenericHierarchy() throws Throwable {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(C.class);
+        {
+            final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, C.class.getMethod("getAll"));
+            final ParameterizedType parameterizedType = (ParameterizedType) methodContext.returnType();
+            Assert.assertEquals(List.class, parameterizedType.getRawType());
+            Assert.assertEquals(String.class, parameterizedType.getActualTypeArguments()[0]);
+        }
+        {
+            final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, C.class.getMethod("getAll2"));
+            final ParameterizedType parameterizedType = (ParameterizedType) methodContext.returnType();
+            Assert.assertEquals(List.class, parameterizedType.getRawType());
+            Assert.assertEquals(Long.class, parameterizedType.getActualTypeArguments()[0]);
+        }
+        {
+            final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, C.class.getMethod("getAll3"));
+            final ParameterizedType parameterizedType = (ParameterizedType) methodContext.returnType();
+            Assert.assertEquals(List.class, parameterizedType.getRawType());
+            Assert.assertEquals(Object.class, parameterizedType.getActualTypeArguments()[0]);
+        }
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -267,5 +324,29 @@ public class InvocationHandlerFactoryTest {
     private interface RequestBodyTestInterface {
         @RequestMethod("POST")
         void uploadPhoto(@RequestBody String requestBody);
+    }
+
+    private interface GenericType<T> {
+        List<T> getAll();
+    }
+
+    private interface ConcreteType extends GenericType<String> {
+        List<String> getAll2();
+    }
+
+    private interface MyClass<T> extends GenericType<String> {
+        List<T> getAll3();
+    }
+
+    private interface A<ResultType> {
+        ResultType getAll();
+    }
+
+    private interface B<T> extends A<List<String>> {
+        List<T> getAll2();
+    }
+
+    private interface C extends B<Long> {
+        List<Object> getAll3();
     }
 }

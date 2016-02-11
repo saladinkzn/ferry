@@ -12,12 +12,14 @@ public class DefaultInterfaceContext implements InterfaceContext {
     private final String defaultMethod;
     private final Map<String, String> constImplicitParams;
     private final Map<String, String> providedImplicitParams;
+    private final Class<?> interfaceType;
 
-    public DefaultInterfaceContext(String baseUrl, String defaultMethod, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams) {
+    public DefaultInterfaceContext(String baseUrl, String defaultMethod, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams, Class<?> interfaceType) {
         this.baseUrl = baseUrl;
         this.defaultMethod = defaultMethod;
         this.constImplicitParams = constImplicitParams;
         this.providedImplicitParams = providedImplicitParams;
+        this.interfaceType = interfaceType;
     }
 
     @Override
@@ -38,6 +40,11 @@ public class DefaultInterfaceContext implements InterfaceContext {
     @Override
     public Map<String, String> providedImplicitParams() {
         return providedImplicitParams;
+    }
+
+    @Override
+    public Class<?> interfaceType() {
+        return interfaceType;
     }
 
 

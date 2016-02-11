@@ -13,4 +13,6 @@ public interface InterfaceContext {
     Map<String,String> constImplicitParams();
 
     Map<String,String> providedImplicitParams();
+
+    Class<?> interfaceType();
 }

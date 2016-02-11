@@ -13,9 +13,7 @@ import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -105,11 +103,11 @@ public class InvocationHandlerFactory {
         final Map<String, String> constImplicitParams = new HashMap<>();
         final Map<String, String> providedImplicitParams = new HashMap<>();
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
-        return new DefaultInterfaceContext(baseUrl, defaultMethod, constImplicitParams, providedImplicitParams);
+        return new DefaultInterfaceContext(baseUrl, defaultMethod, constImplicitParams, providedImplicitParams, clazz);
     }
 
     static MethodContext getMethodContext(InterfaceContext interfaceContext, Method method) {
-        final Type returnType = method.getGenericReturnType();
+        Type returnType = processMethodType(method, interfaceContext.interfaceType());
         final String url;
         final Url urlAnnotation = method.getAnnotation(Url.class);
         if(urlAnnotation == null) {
@@ -166,6 +164,95 @@ public class InvocationHandlerFactory {
         return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap, requestBodyIndex);
     }
 
+    private static Type processMethodType(Method method, Class<?> context) {
+        final Type genericReturnType = method.getGenericReturnType();
+        if(genericReturnType instanceof Class<?>) {
+            return genericReturnType;
+        }
+        if(genericReturnType instanceof ParameterizedType) {
+            final Type[] actualTypeArguments = ((ParameterizedType) genericReturnType).getActualTypeArguments();
+            boolean allMatch = true;
+            for(Type typeArgument : actualTypeArguments) {
+                if(typeArgument instanceof TypeVariable) {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if(allMatch) {
+                return genericReturnType;
+            }
+        }
+        //
+        Stack<Type> stack = new Stack<>();
+        stack.push(context);
+        while (!stack.isEmpty()) {
+            final Type type = stack.pop();
+            if(type instanceof Class<?>) {
+                try {
+                    final Method declaredMethod = ((Class) type).getDeclaredMethod(method.getName(), method.getParameterTypes());
+                    throw new IllegalStateException("Raw class contains parametrized return type, fail");
+                } catch (NoSuchMethodException nsme) {
+                    for(Type t: context.getGenericInterfaces()) {
+                        stack.push(t);
+                    }
+                }
+            } else if (type instanceof ParameterizedType) {
+                final Class<?> rawType = (Class<?>) ((ParameterizedType) type).getRawType();
+                try {
+                    final Method declaredMethod = rawType.getDeclaredMethod(method.getName(), method.getParameterTypes());
+                    if(genericReturnType instanceof ParameterizedType) {
+                        return processParameterizedType(((ParameterizedType) genericReturnType), ((ParameterizedType) type));
+                    } else if (genericReturnType instanceof TypeVariable) {
+                        return processTypeVariable(((TypeVariable) genericReturnType), ((ParameterizedType) type));
+                    } else {
+                        throw new IllegalStateException("Unknown genericReturnType: " + genericReturnType.getClass());
+                    }
+                } catch (NoSuchMethodException e) {
+                    for(Type t: rawType.getGenericInterfaces()) {
+                        stack.push(t);
+                    }
+                }
+            }
+
+        }
+        throw new IllegalStateException("No interface of context declares method");
+    }
+
+    private static Type processTypeVariable(TypeVariable typeVariable, ParameterizedType declaringType) {
+        final Map<String, Type> stringClassMap = typeVariableToClassMap(declaringType);
+        return stringClassMap.get(typeVariable.getName());
+    }
+
+    private static ParameterizedType processParameterizedType(ParameterizedType returnType, ParameterizedType declaringType) {
+        final Map<String, Type> typeVariableClassMap = typeVariableToClassMap(declaringType);
+        //
+        final Type[] array = returnType.getActualTypeArguments();
+        final Type[] resolved = new Type[array.length];
+        for (int i = 0; i < array.length; i++) {
+            Type typeArgument = array[i];
+            final Type val;
+            if(typeArgument instanceof TypeVariable) {
+                final String name = ((TypeVariable) typeArgument).getName();
+                val = typeVariableClassMap.get(name);
+            } else {
+                val = typeArgument;
+            }
+            resolved[i] = val;
+        }
+        return new MyParameterizedType(resolved, returnType);
+    }
+
+    private static Map<String, Type> typeVariableToClassMap(ParameterizedType declaringType) {
+        final Map<String, Type> typeVariableClassMap = new HashMap<>();
+        final Type[] actualTypeArguments = declaringType.getActualTypeArguments();
+        final TypeVariable<?>[] typeParameters = ((Class<?>) declaringType.getRawType()).getTypeParameters();
+        assert actualTypeArguments.length == typeParameters.length;
+        for(int i = 0; i < actualTypeArguments.length; i++) {
+            typeVariableClassMap.put(typeParameters[i].getName(), actualTypeArguments[i]);
+        }
+        return typeVariableClassMap;
+    }
+
     private static List<ImplicitParam> parseImplicitParams(ImplicitParams implicitParams, ImplicitParam implicitParam) {
         final List<ImplicitParam> implicitParamList;
         if(implicitParams != null) {
@@ -192,6 +279,31 @@ public class InvocationHandlerFactory {
             } else if (!"".equals(implicitParam.providerName())) {
                 providedImplicitParams.put(implicitParam.paramName(), implicitParam.providerName());
             }
+        }
+    }
+
+    private static class MyParameterizedType implements ParameterizedType {
+        private final Type[] resolved;
+        private final ParameterizedType returnType;
+
+        public MyParameterizedType(Type[] resolved, ParameterizedType returnType) {
+            this.resolved = resolved;
+            this.returnType = returnType;
+        }
+
+        @Override
+        public Type[] getActualTypeArguments() {
+            return resolved;
+        }
+
+        @Override
+        public Type getRawType() {
+            return returnType.getRawType();
+        }
+
+        @Override
+        public Type getOwnerType() {
+            return returnType.getOwnerType();
         }
     }
 }
