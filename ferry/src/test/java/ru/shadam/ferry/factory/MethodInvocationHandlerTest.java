@@ -3,10 +3,12 @@ package ru.shadam.ferry.factory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
+import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 
@@ -17,14 +19,23 @@ import java.util.Map;
  * @author sala
  */
 public class MethodInvocationHandlerTest {
+    private MethodExecutor methodExecutor;
+    private ResultExtractor<?> resultExtractor;
+
+    @Before
+    public void setUp() {
+        methodExecutor = Mockito.mock(MethodExecutor.class);
+        resultExtractor = Mockito.mock(ResultExtractor.class);
+    }
+
     @Test
     public void testSimpleParams() throws Throwable {
         final Method testMethod = TestInterface.class.getMethod("testMethod");
-        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                 testMethod,
                 new MethodInvocationHandler.MethodExecutionContext<>(
                         methodExecutor,
+                        resultExtractor,
                         ImmutableMap.of(0, "param1", 1, "param2"),
                         Maps.<String, String>newHashMap(),
                         Maps.<String, String>newHashMap(),
@@ -41,12 +52,12 @@ public class MethodInvocationHandlerTest {
     @Test
     public void testConstImplicitParams() throws Throwable {
         final Method method = TestInterface.class.getMethod("testMethod");
-        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
                         new MethodInvocationHandler.MethodExecutionContext<>(
                                 methodExecutor,
+                                resultExtractor,
                                 Maps.<Integer, String>newHashMap(),
                                 ImmutableMap.of("constParam", "constValue"),
                                 ImmutableMap.<String, String>of(),
@@ -62,12 +73,12 @@ public class MethodInvocationHandlerTest {
     @Test
     public void testProvidedImplicitParam() throws Throwable {
         final Method method = TestInterface.class.getMethod("testMethod");
-        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
                         new MethodInvocationHandler.MethodExecutionContext<>(
                                 methodExecutor,
+                                resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
                                 ImmutableMap.<String, String>of(),
                                 ImmutableMap.of("param1", "providedName"),
@@ -89,12 +100,12 @@ public class MethodInvocationHandlerTest {
     @Test
     public void testProvidedImplicitParam2() throws Throwable {
         final Method method = TestInterface.class.getMethod("testMethod");
-        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
                         new MethodInvocationHandler.MethodExecutionContext<>(
                                 methodExecutor,
+                                resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
                                 ImmutableMap.<String, String>of(),
                                 ImmutableMap.of("", "providedName"),
@@ -121,12 +132,12 @@ public class MethodInvocationHandlerTest {
     @Test
     public void testPathVariable() throws Throwable {
         final Method method = TestInterface.class.getMethod("testMethod");
-        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
                         new MethodInvocationHandler.MethodExecutionContext<>(
                                 methodExecutor,
+                                resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
                                 ImmutableMap.<String, String>of(),
                                 ImmutableMap.<String, String>of(),
@@ -144,12 +155,12 @@ public class MethodInvocationHandlerTest {
     @Test
     public void testRequestBody() throws Throwable {
         final Method method = TestInterface.class.getMethod("testMethod");
-        final MethodExecutor methodExecutor = Mockito.mock(MethodExecutor.class);
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
                         new MethodInvocationHandler.MethodExecutionContext<>(
                                 methodExecutor,
+                                resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
                                 ImmutableMap.<String, String>of(),
                                 ImmutableMap.<String, String>of(),

@@ -10,6 +10,7 @@ import ru.shadam.ferry.analyze.InterfaceContext;
 import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.annotations.*;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
+import ru.shadam.ferry.factory.result.ResultExtractorFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
 import java.lang.reflect.ParameterizedType;
@@ -26,8 +27,9 @@ public class InvocationHandlerFactoryTest {
     @Test
     public void createInvocationHandlerEmptyInterface() throws Exception {
         final MethodExecutorFactory methodExecutorFactory = Mockito.mock(MethodExecutorFactory.class);
+        final ResultExtractorFactory resultExtractorFactory = Mockito.mock(ResultExtractorFactory.class);
         final Map<String, ImplicitParameterProvider> implicitParameterProviderMap = Maps.newHashMap();
-        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, implicitParameterProviderMap);
+        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, resultExtractorFactory, implicitParameterProviderMap);
         invocationHandlerFactory.createInvocationHandler(EmptyInterface.class);
         //
         final ArgumentCaptor<MethodContext> methodContextArgumentCaptor = ArgumentCaptor.forClass(MethodContext.class);
@@ -37,8 +39,9 @@ public class InvocationHandlerFactoryTest {
     @Test
     public void createInvocationHandlerEmptyMethodsInterface() {
         final MethodExecutorFactory methodExecutorFactory = Mockito.mock(MethodExecutorFactory.class);
+        final ResultExtractorFactory resultExtractorFactory = Mockito.mock(ResultExtractorFactory.class);
         final Map<String, ImplicitParameterProvider> implicitParameterProviderMap = Maps.newHashMap();
-        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, implicitParameterProviderMap);
+        final InvocationHandlerFactory invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, resultExtractorFactory, implicitParameterProviderMap);
         invocationHandlerFactory.createInvocationHandler(EmptyMethodsInterface.class);
         //
         final ArgumentCaptor<MethodContext> methodContextArgumentCaptor = ArgumentCaptor.forClass(MethodContext.class);

@@ -10,6 +10,8 @@ import ru.shadam.ferry.annotations.*;
 import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
+import ru.shadam.ferry.factory.result.ResultExtractor;
+import ru.shadam.ferry.factory.result.ResultExtractorFactory;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
 import java.lang.annotation.Annotation;
@@ -23,12 +25,16 @@ public class InvocationHandlerFactory {
     private static final Logger logger = LoggerFactory.getLogger(InvocationHandlerFactory.class);
     //
     private final MethodExecutorFactory methodExecutorFactory;
+    private final ResultExtractorFactory resultExtractorFactory;
+    //
     private final Map<String, ImplicitParameterProvider> implicitParameterProviderMap;
     private final RequestBodyConverter requestBodyConverter;
 
     @Deprecated
-    public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory, Map<String, ImplicitParameterProvider> implicitParameterProviderMap) {
-        this(methodExecutorFactory, implicitParameterProviderMap, new RequestBodyConverter() {
+    public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory,
+                                    ResultExtractorFactory resultExtractorFactory,
+                                    Map<String, ImplicitParameterProvider> implicitParameterProviderMap) {
+        this(methodExecutorFactory, resultExtractorFactory, implicitParameterProviderMap, new RequestBodyConverter() {
             @Override
             public <T> String convert(T value) {
                 return String.valueOf(value);
@@ -42,8 +48,10 @@ public class InvocationHandlerFactory {
     }
 
     public InvocationHandlerFactory(MethodExecutorFactory methodExecutorFactory,
+                                    ResultExtractorFactory resultExtractorFactory,
                                     Map<String, ImplicitParameterProvider> implicitParameterProviderMap,
                                     RequestBodyConverter requestBodyConverter) {
+        this.resultExtractorFactory = resultExtractorFactory;
         Objects.requireNonNull(methodExecutorFactory);
         Objects.requireNonNull(implicitParameterProviderMap);
         Objects.requireNonNull(requestBodyConverter);
@@ -68,8 +76,9 @@ public class InvocationHandlerFactory {
     }
 
     private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) {
-        final MethodExecutor<T> requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
-        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor,
+        final MethodExecutor requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
+        final ResultExtractor<T> resultExtractor = resultExtractorFactory.getResultExtractor(methodContext);
+        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, resultExtractor,
                 methodContext.indexToParamMap(),
                 methodContext.constImplicitParams(),
                 methodContext.providedImplicitParams(),

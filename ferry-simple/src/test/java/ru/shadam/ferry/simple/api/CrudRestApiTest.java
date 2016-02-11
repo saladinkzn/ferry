@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.io.CharStreams;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Assert;
@@ -91,7 +90,7 @@ public class CrudRestApiTest {
 
     HttpUriRequest captureHttpUriRequest() throws IOException {
         final ArgumentCaptor<HttpUriRequest> httpUriRequestArgumentCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-        Mockito.verify(httpClient, Mockito.only()).execute(httpUriRequestArgumentCaptor.capture(), Mockito.any(ResponseHandler.class));
+        Mockito.verify(httpClient, Mockito.only()).execute(httpUriRequestArgumentCaptor.capture());
         return httpUriRequestArgumentCaptor.getValue();
     }
 

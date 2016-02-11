@@ -1,5 +1,7 @@
 package ru.shadam.ferry.factory.executor;
 
+import ru.shadam.ferry.factory.response.ResponseWrapper;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -9,7 +11,7 @@ import java.util.Map;
  * @author sala
  * @see MethodExecutorFactory
  */
-public interface MethodExecutor<T> {
+public interface MethodExecutor {
     /**
      * Execute http request with provided parameters
      *
@@ -19,5 +21,5 @@ public interface MethodExecutor<T> {
      * @return Parsed response as java object
      * @throws IOException
      */
-    T execute(Map<String, ?> parameters, Map<String, ?> pathVariables, String requestBody) throws IOException;
+    ResponseWrapper execute(Map<String, ?> parameters, Map<String, ?> pathVariables, String requestBody) throws IOException;
 }

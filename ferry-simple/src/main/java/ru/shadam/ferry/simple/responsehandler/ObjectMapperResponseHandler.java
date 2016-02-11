@@ -1,9 +1,8 @@
 package ru.shadam.ferry.simple.responsehandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
+import ru.shadam.ferry.factory.response.ResponseWrapper;
+import ru.shadam.ferry.factory.result.ResultExtractor;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -11,7 +10,7 @@ import java.lang.reflect.Type;
 /**
  * @author sala
  */
-public class ObjectMapperResponseHandler<T> implements ResponseHandler<T> {
+public class ObjectMapperResponseHandler<T> implements ResultExtractor<T> {
     private ObjectMapper objectMapper;
     private Type returnType;
 
@@ -21,7 +20,10 @@ public class ObjectMapperResponseHandler<T> implements ResponseHandler<T> {
     }
 
     @Override
-    public T handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-        return objectMapper.readValue(response.getEntity().getContent(), objectMapper.getTypeFactory().constructType(returnType));
+    public T extractResponse(ResponseWrapper responseWrapper) throws IOException{
+        if(responseWrapper == null) {
+            return null;
+        }
+        return objectMapper.readValue(responseWrapper.getInputStream(), objectMapper.getTypeFactory().constructType(returnType));
     }
 }
