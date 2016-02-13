@@ -7,6 +7,11 @@ buildscript {
     }
 }
 
+project.ext {
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
+}
+
 subprojects { project ->
     // Apply the java plugin to add support for Java
     apply plugin: 'java'
@@ -19,6 +24,13 @@ subprojects { project ->
     repositories {
         mavenCentral()
     }
+
+    dependencies {
+        testCompile 'junit:junit:4.11'
+        testCompile 'org.mockito:mockito-all:1.10.19'
+        testCompile 'com.google.guava:guava:19.0'
+        testCompile 'org.slf4j:slf4j-simple:1.7.12'
+    }
 }
 
 apply from: 'publish.gradle'
@@ -27,11 +39,6 @@ project(':ferry') {
 // In this section you declare the dependencies for your production and test code
     dependencies {
         compile 'org.slf4j:slf4j-api:1.7.13'
-
-        testCompile 'junit:junit:4.11'
-        testCompile 'org.mockito:mockito-all:1.10.19'
-        testCompile 'com.google.guava:guava:19.0'
-        testCompile 'org.slf4j:slf4j-simple:1.7.12'
     }
 }
 
@@ -40,11 +47,16 @@ project(':ferry-simple') {
         compile project(':ferry')
         compile 'org.apache.httpcomponents:httpclient:4.5.1'
         compile 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
+    }
+}
 
-        testCompile 'junit:junit:4.11'
-        testCompile 'org.mockito:mockito-all:1.10.19'
-        testCompile 'com.google.guava:guava:19.0'
-        testCompile 'org.slf4j:slf4j-simple:1.7.12'
+project(':ferry-spring') {
+    dependencies {
+        compile project(':ferry-simple')
+        compile "org.springframework:spring-context:${springVersion}" {
+            exclude 'commons-logging'
+        }
+        compile 'org.slf4j:jcl-over-slf4j:1.7.12'
     }
 }
 
