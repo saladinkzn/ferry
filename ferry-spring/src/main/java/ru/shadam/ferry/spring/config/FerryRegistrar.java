@@ -2,6 +2,8 @@ package ru.shadam.ferry.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -24,6 +26,7 @@ import java.util.Map;
  * @author sala
  */
 public class FerryRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+    private static final Logger logger = LoggerFactory.getLogger(FerryRegistrar.class);
     //
     private Environment environment;
     private ResourceLoader resourceLoader;
@@ -44,8 +47,14 @@ public class FerryRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
         Assert.notNull(registry);
         Assert.notNull(resourceLoader);
 
-        if(!registry.containsBeanDefinition("clientImplFactory")) {
+        if (!registry.containsBeanDefinition("clientImplFactory")) {
+            if(logger.isDebugEnabled()) {
+                logger.debug("clientImplFactory was not found, registering default");
+            }
             if (!registry.containsBeanDefinition("objectMapper")) {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("objectMapper was not found, registering default");
+                }
                 final AbstractBeanDefinition objectMapperBeanDefinition = BeanDefinitionBuilder
                         .rootBeanDefinition(ObjectMapper.class)
                         .getRawBeanDefinition();
@@ -53,6 +62,9 @@ public class FerryRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
             }
 
             if (!registry.containsBeanDefinition("httpClient")) {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("httpClient was not found, registering default");
+                }
                 final AbstractBeanDefinition builderBeanDefinition = BeanDefinitionBuilder
                         .rootBeanDefinition(HttpClientBuilder.class, "create")
                         .getRawBeanDefinition();
@@ -80,11 +92,11 @@ public class FerryRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
 
 
         final List<BeanDefinition> candidates = new ArrayList<>();
-        for(String basePackage: basePackages) {
+        for (String basePackage : basePackages) {
             candidates.addAll(classPathScanningCandidateComponentProvider.findCandidateComponents(basePackage));
         }
         //
-        for (BeanDefinition candidate: candidates) {
+        for (BeanDefinition candidate : candidates) {
             final AbstractBeanDefinition interfaceImplementation = BeanDefinitionBuilder
                     .genericBeanDefinition(candidate.getBeanClassName())
 
