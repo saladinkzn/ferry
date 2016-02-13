@@ -53,10 +53,10 @@ project(':ferry-simple') {
 project(':ferry-spring') {
     dependencies {
         compile project(':ferry-simple')
-        compile "org.springframework:spring-context:${springVersion}" {
-            exclude 'commons-logging'
+        compile ("org.springframework:spring-context:${springVersion}") {
+            exclude module: 'commons-logging'
         }
-        compile 'org.slf4j:jcl-over-slf4j:1.7.12'
+        compile 'org.slf4j:jcl-over-slf4j:1.7.13'
     }
 }
 
