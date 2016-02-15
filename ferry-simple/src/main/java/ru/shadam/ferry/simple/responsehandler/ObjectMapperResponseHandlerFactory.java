@@ -22,9 +22,6 @@ public class ObjectMapperResponseHandlerFactory implements ResultExtractorFactor
 
     @Override
     public boolean canCreateExtractor(MethodContext methodContext) {
-        if(Void.class.equals(methodContext.returnType())) {
-            return true;
-        }
         return objectMapper.canDeserialize(objectMapper.constructType(methodContext.returnType()));
     }
 
