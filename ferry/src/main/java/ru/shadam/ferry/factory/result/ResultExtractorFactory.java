@@ -8,5 +8,7 @@ import ru.shadam.ferry.analyze.MethodContext;
  * @author sala
  */
 public interface ResultExtractorFactory {
-    <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext);
+    boolean canCreateExtractor(MethodContext methodContext);
+
+    <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext) throws UnsupportedTypeException;
 }

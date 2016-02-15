@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
+import ru.shadam.ferry.factory.result.UnsupportedTypeException;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
 import java.lang.reflect.Proxy;
@@ -33,7 +34,7 @@ public class ClientImplementationFactory {
         this.invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, resultExtractorFactory, implicitParameterProviders, requestBodyConverter);
     }
 
-    public <T> T getInterfaceImplementation(Class<T> interfaceClass) {
+    public <T> T getInterfaceImplementation(Class<T> interfaceClass) throws UnsupportedTypeException {
         logger.debug("Getting interface implementation for {}", interfaceClass);
         return ((T) Proxy.newProxyInstance(
                 ClientImplementationFactory.class.getClassLoader(),

@@ -4,6 +4,7 @@ import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.response.ResponseWrapper;
 import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
+import ru.shadam.ferry.factory.result.UnsupportedTypeException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,8 +18,16 @@ public class CoreResultExtractorFactory implements ResultExtractorFactory {
     private static final StringExtractor<?> STRING_EXTRACTOR = new StringExtractor<>();
 
     @Override
-    public <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext) {
+    public <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext) throws UnsupportedTypeException {
+        if(!canCreateExtractor(methodContext)) {
+            throw new UnsupportedTypeException(methodContext.returnType());
+        }
         return (ResultExtractor<T>) STRING_EXTRACTOR;
+    }
+
+    @Override
+    public boolean canCreateExtractor(MethodContext methodContext) {
+        return String.class.equals(methodContext.returnType());
     }
 
     private static class StringExtractor<T> implements ResultExtractor<T> {

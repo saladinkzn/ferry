@@ -12,6 +12,7 @@ import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
+import ru.shadam.ferry.factory.result.UnsupportedTypeException;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 
 import java.lang.annotation.Annotation;
@@ -60,7 +61,8 @@ public class InvocationHandlerFactory {
         this.requestBodyConverter = requestBodyConverter;
     }
 
-    public InvocationHandler createInvocationHandler(Class<?> clazz) {
+    // TODO: collect exception for all methods and throw an uberexception about whole interface
+    public InvocationHandler createInvocationHandler(Class<?> clazz) throws UnsupportedTypeException {
         logger.debug("Creating invocation handler for class: {}", clazz);
         //
         final InterfaceContext interfaceContext = getInterfaceContext(clazz);
@@ -75,7 +77,7 @@ public class InvocationHandlerFactory {
         return new MethodInvocationHandler(methodExecutionContextMap, implicitParameterProviderMap, requestBodyConverter);
     }
 
-    private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) {
+    private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) throws UnsupportedTypeException {
         final MethodExecutor requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
         final ResultExtractor<T> resultExtractor = resultExtractorFactory.getResultExtractor(methodContext);
         return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, resultExtractor,

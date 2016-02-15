@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
+import ru.shadam.ferry.factory.result.UnsupportedTypeException;
 
 /**
  * Jackson-based {@link ResultExtractorFactory} implementation
@@ -20,7 +21,18 @@ public class ObjectMapperResponseHandlerFactory implements ResultExtractorFactor
     }
 
     @Override
+    public boolean canCreateExtractor(MethodContext methodContext) {
+        if(Void.class.equals(methodContext.returnType())) {
+            return true;
+        }
+        return objectMapper.canDeserialize(objectMapper.constructType(methodContext.returnType()));
+    }
+
+    @Override
     public <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext) {
+        if(!canCreateExtractor(methodContext)) {
+            throw new UnsupportedTypeException(methodContext.returnType());
+        }
         return new ObjectMapperResponseHandler<T>(objectMapper, methodContext.returnType());
     }
 }
