@@ -27,4 +27,15 @@ public class ObjectMapperResponseHandlerTest {
         Assert.assertEquals("abc", list.get(0));
         Assert.assertEquals("def", list.get(1));
     }
+
+//
+//    @Test
+//    public void testString() throws Exception {
+//        final ObjectMapper objectMapper = new ObjectMapper();
+//        final ObjectMapperResponseHandler<String> handler = new ObjectMapperResponseHandler<>(objectMapper, String.class);
+//        final ResponseWrapper responseWrapper = Mockito.mock(ResponseWrapper.class);
+//        Mockito.when(responseWrapper.getInputStream()).thenReturn(new ByteArrayInputStream("{\"1\":123}".getBytes(StandardCharsets.UTF_8)));
+//        final String result = handler.extractResponse(responseWrapper);
+//        Assert.assertEquals("{\"1\":123}", result);
+//    }
 }
