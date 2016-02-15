@@ -1,2 +1,2 @@
 rootProject.name = 'ferry-root'
-include 'ferry', 'ferry-simple', 'ferry-spring'
+include 'ferry', 'ferry-simple', 'ferry-spring', 'ferry-core'

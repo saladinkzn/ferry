@@ -42,6 +42,12 @@ project(':ferry') {
     }
 }
 
+project(':ferry-core') {
+    dependencies {
+        compile project(':ferry')
+    }
+}
+
 project(':ferry-simple') {
     dependencies {
         compile project(':ferry')
