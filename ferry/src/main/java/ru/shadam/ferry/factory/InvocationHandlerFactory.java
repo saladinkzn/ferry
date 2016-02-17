@@ -86,7 +86,8 @@ public class InvocationHandlerFactory {
                 methodContext.constImplicitParams(),
                 methodContext.providedImplicitParams(),
                 methodContext.indexToPathVariableMap(),
-                methodContext.requestBodyIndex()
+                methodContext.requestBodyIndex(),
+                methodContext.mapParameterIndex()
         );
     }
 

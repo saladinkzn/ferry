@@ -141,12 +141,12 @@ class MethodInvocationHandler implements InvocationHandler {
             requestBody = null;
         }
         if(methodExecutionContext.mapParamIndex != null) {
-            final Map<String, ?> value = (Map<String, ?>) args[methodExecutionContext.mapParamIndex];
-            for(Map.Entry<String, ?> entry : value.entrySet()) {
+            final Map<Object, Object> value = (Map) args[methodExecutionContext.mapParamIndex];
+            for(Map.Entry<Object, Object> entry : value.entrySet()) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("Adding param from @Param Map: {} = {}", entry.getKey(), entry.getValue());
                 }
-                paramToValueMap.put(entry.getKey(), entry.getValue());
+                paramToValueMap.put(String.valueOf(entry.getKey()), entry.getValue());
             }
         }
         final MethodExecutor methodExecutor = methodExecutionContext.methodExecutor;
@@ -168,7 +168,7 @@ class MethodInvocationHandler implements InvocationHandler {
 
         @Deprecated
         public MethodExecutionContext(MethodExecutor methodExecutor, ResultExtractor<T> resultExtractor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap) {
-            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null);
+            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null, null);
         }
 
         @Deprecated
