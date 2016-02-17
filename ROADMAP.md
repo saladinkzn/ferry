@@ -5,5 +5,6 @@
 - [ ] Javadoc improvement
 - [x] Custom ResponseHandler interface to untie from HttpClient library
 - [x] Spring integration
-- [ ] @Param for maps and beans
+- [x] @Param for maps
+- [ ] @Param for beans(?)
 - [ ] Support of param conversions (for example: list to joined string)
