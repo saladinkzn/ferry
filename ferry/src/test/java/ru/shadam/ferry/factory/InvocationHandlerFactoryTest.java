@@ -268,6 +268,13 @@ public class InvocationHandlerFactoryTest {
         Assert.assertEquals(0, methodContext3.mapParameterIndex().longValue());
     }
 
+    @Test
+    public void testMethodBeanParam() throws Throwable {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(RequestParamBeanInterface.class);
+        final MethodContext methodContext = InvocationHandlerFactory.getMethodContext(interfaceContext, RequestParamBeanInterface.class.getMethod("testMethod", Pageable.class));
+        Assert.assertEquals(0, methodContext.beanParameterIndex().intValue());
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -373,5 +380,30 @@ public class InvocationHandlerFactoryTest {
         List<String> testMethod(@Param("requiredParam1") String requiredParam1, @Param Map<String, Object> options);
 
         List<String> testMethod(@Param Properties props);
+    }
+
+    private static class Pageable {
+        private int offset;
+        private int count;
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+    }
+
+    private interface RequestParamBeanInterface {
+        List<String> testMethod(@Param Pageable pageable);
     }
 }

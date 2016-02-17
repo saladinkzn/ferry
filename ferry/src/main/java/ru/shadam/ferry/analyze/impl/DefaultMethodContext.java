@@ -24,11 +24,13 @@ public class DefaultMethodContext implements MethodContext {
     private final Map<Integer, String> indexToPathVariableMap;
     private final Integer requestBodyIndex;
     private final Integer mapParameterIndex;
+    private Integer beanParameterIndex;
 
-    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams, Map<Integer, String> indexToPathVariableMap, Integer requestBodyIndex, Integer mapParameterIndex) {
+    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams, Map<Integer, String> indexToPathVariableMap, Integer requestBodyIndex, Integer mapParameterIndex, Integer beanParameterIndex) {
         this.url = url;
         this.method = method;
         this.indexToPathVariableMap = indexToPathVariableMap;
+        this.beanParameterIndex = beanParameterIndex;
         this.interfaceContext = Objects.requireNonNull(interfaceContext);
         this.params = Objects.requireNonNull(params);
         this.indexToParamMap = Objects.requireNonNull(indexToParamMap);
@@ -87,6 +89,11 @@ public class DefaultMethodContext implements MethodContext {
     @Override
     public Integer mapParameterIndex() {
         return mapParameterIndex;
+    }
+
+    @Override
+    public Integer beanParameterIndex() {
+        return beanParameterIndex;
     }
 
     @Override

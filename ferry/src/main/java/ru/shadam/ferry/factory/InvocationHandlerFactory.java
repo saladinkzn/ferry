@@ -87,7 +87,8 @@ public class InvocationHandlerFactory {
                 methodContext.providedImplicitParams(),
                 methodContext.indexToPathVariableMap(),
                 methodContext.requestBodyIndex(),
-                methodContext.mapParameterIndex()
+                methodContext.mapParameterIndex(),
+                methodContext.beanParameterIndex()
         );
     }
 
@@ -145,6 +146,7 @@ public class InvocationHandlerFactory {
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Integer requestBodyIndex = null;
         Integer mapParameterIndex = null;
+        Integer beanParameterIndex = null;
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {
             final Annotation[] parameterAnnotationArray = parameterAnnotations[paramIndex];
             final Type genericParameterType = genericParameterTypes[paramIndex];
@@ -154,24 +156,21 @@ public class InvocationHandlerFactory {
                     final Param param = ((Param) annotation);
                     final String paramName = param.value();
                     if("".equals(paramName)) {
-                        if(genericParameterType instanceof Class<?>) {
-                            if(Map.class.isAssignableFrom(((Class) genericParameterType))) {
-                                if(mapParameterIndex == null) {
-                                    mapParameterIndex = paramIndex;
-                                } else {
-                                    logger.warn(DUPLICATE_MAP_PARAM_MESSAGE);
-                                }
+                        if(genericParameterType instanceof Class<?> && Map.class.isAssignableFrom(((Class) genericParameterType))) {
+                            if(mapParameterIndex == null) {
+                                mapParameterIndex = paramIndex;
+                            } else {
+                                logger.warn(DUPLICATE_MAP_PARAM_MESSAGE);
                             }
-                        } else if (genericParameterType instanceof ParameterizedType) {
-                            if(Map.class.isAssignableFrom(((Class<?>) ((ParameterizedType) genericParameterType).getRawType()))) {
-                                if(mapParameterIndex == null) {
-                                    mapParameterIndex = paramIndex;
-                                } else {
-                                    logger.warn(DUPLICATE_MAP_PARAM_MESSAGE);
-                                }
+                        } else if (genericParameterType instanceof ParameterizedType &&
+                            Map.class.isAssignableFrom(((Class<?>) ((ParameterizedType) genericParameterType).getRawType()))) {
+                            if(mapParameterIndex == null) {
+                                mapParameterIndex = paramIndex;
+                            } else {
+                                logger.warn(DUPLICATE_MAP_PARAM_MESSAGE);
                             }
                         } else {
-                            throw new IllegalStateException("Empty parameter name is supported only for classes derived from Map");
+                            beanParameterIndex = paramIndex;
                         }
                     } else {
                         params.add(paramName);
@@ -199,7 +198,11 @@ public class InvocationHandlerFactory {
         final Map<String, String> providedImplicitParams = new HashMap<>(interfaceContext.providedImplicitParams());
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         //
-        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap, requestBodyIndex, mapParameterIndex);
+
+        return new DefaultMethodContext(
+                interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams,
+                indexToPathVariableMap, requestBodyIndex, mapParameterIndex, beanParameterIndex
+        );
     }
 
     private static Type processMethodType(Method method, Class<?> context) {

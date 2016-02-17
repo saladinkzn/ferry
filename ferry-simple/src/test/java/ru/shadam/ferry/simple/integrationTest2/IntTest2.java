@@ -16,5 +16,7 @@ public class IntTest2 {
         final ClientImplementationFactory clientImplementationFactory = new DefaultClientImplementationFactory(HttpClientBuilder.create().build(), new ObjectMapper());
         final UsersSearchOperation usersSearchOp = clientImplementationFactory.getInterfaceImplementation(UsersSearchOperation.class);
         System.out.println(usersSearchOp.execute("Дуров", ImmutableMap.of("sort", "name", "offset", 10, "count", 20)));
+        //
+        System.out.println(usersSearchOp.execute("Дуров", new Pageable("name", 10, 20)));
     }
 }

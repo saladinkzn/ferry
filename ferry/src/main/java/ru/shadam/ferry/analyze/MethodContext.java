@@ -27,4 +27,6 @@ public interface MethodContext {
     Integer requestBodyIndex();
 
     Integer mapParameterIndex();
+
+    Integer beanParameterIndex();
 }

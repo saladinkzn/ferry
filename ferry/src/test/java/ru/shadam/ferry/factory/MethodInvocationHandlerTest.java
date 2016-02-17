@@ -208,7 +208,83 @@ public class MethodInvocationHandlerTest {
         );
         final Map params = mapArgumentCaptor.getValue();
         Assert.assertEquals(expected, params);
+    }
 
+    @Test
+    public void testBeanParameter() throws Throwable {
+        final Method method = TestInterface.class.getMethod("testMethod");
+        final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
+                ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
+                        method,
+                        new MethodInvocationHandler.MethodExecutionContext<>(
+                                methodExecutor,
+                                resultExtractor,
+                                ImmutableMap.<Integer, String>of(),
+                                ImmutableMap.<String, String>of(),
+                                ImmutableMap.<String, String>of(),
+                                ImmutableMap.<Integer, String>of(),
+                                null,
+                                null,
+                                0
+                        )
+                ), ImmutableMap.<String, ImplicitParameterProvider>of()
+        );
+        final Pageable expected = new Pageable(5, 10);
+        final Object result = methodInvocationHandler.invoke(null, method, new Object[]{expected});
+        final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        Mockito.verify(methodExecutor, Mockito.only()).execute(
+                mapArgumentCaptor.capture(),
+                Mockito.anyMapOf(String.class, Object.class),
+                Mockito.anyString()
+        );
+        final Map params = mapArgumentCaptor.getValue();
+        Assert.assertEquals(expected.getCount(), params.get("count"));
+        Assert.assertEquals(expected.getOffset(), params.get("offset"));
+    }
+
+    private static class Pageable {
+        private int offset;
+        private int count;
+
+        public Pageable(int offset, int count) {
+            this.offset = offset;
+            this.count = count;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            final Pageable pageable = (Pageable) o;
+
+            if (offset != pageable.offset) return false;
+            return count == pageable.count;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = offset;
+            result = 31 * result + count;
+            return result;
+        }
     }
 
     private interface TestInterface {

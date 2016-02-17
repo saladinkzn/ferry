@@ -11,4 +11,7 @@ import java.util.Map;
 public interface UsersSearchOperation {
     @Url("https://api.vk.com/method/users.search")
     public Map<String, Object>  execute(@Param("q") String q, @Param Map<String, Object> params);
+
+    @Url("https://api.vk.com/method/users.search")
+    Map<String, Object> execute(@Param("q") String q, @Param Pageable pageable);
 }

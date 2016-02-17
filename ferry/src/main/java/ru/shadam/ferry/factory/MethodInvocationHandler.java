@@ -9,8 +9,12 @@ import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -149,6 +153,23 @@ class MethodInvocationHandler implements InvocationHandler {
                 paramToValueMap.put(String.valueOf(entry.getKey()), entry.getValue());
             }
         }
+        if(methodExecutionContext.beanParamIndex != null) {
+            final Object param = args[methodExecutionContext.beanParamIndex];
+            try {
+                for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(param.getClass(), Object.class).getPropertyDescriptors()) {
+                    final String name = propertyDescriptor.getName();
+                    final Object value = propertyDescriptor.getReadMethod().invoke(param);
+                    if(logger.isTraceEnabled()) {
+                        logger.trace("Adding param from @Param Bean: {} = {}", name, value);
+                    }
+                    paramToValueMap.put(name, value);
+                }
+            } catch (IntrospectionException iex) {
+                logger.error("An error has occured while introspecting", iex);
+            } catch (IllegalAccessException | InvocationTargetException mcEx) {
+                logger.error("An error has occurred while calling getter", mcEx);
+            }
+        }
         final MethodExecutor methodExecutor = methodExecutionContext.methodExecutor;
         final ResultExtractor<T> resultExtractor = methodExecutionContext.resultExtractor;
         final ResponseWrapper responseWrapper = methodExecutor.execute(paramToValueMap, pathToVariableMap, requestBody);
@@ -165,10 +186,11 @@ class MethodInvocationHandler implements InvocationHandler {
         private final Map<Integer, String> indexToPathVariableMap;
         private final Integer requestBodyParamIndex;
         private final Integer mapParamIndex;
+        private final Integer beanParamIndex;
 
         @Deprecated
         public MethodExecutionContext(MethodExecutor methodExecutor, ResultExtractor<T> resultExtractor, Map<Integer, String> indexToParamMap, Map<String, String> constImplicitParamMap, Map<String, String> implicitParameterProviderMap, Map<Integer, String> indexToPathVariableMap) {
-            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null, null);
+            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, null, null, null);
         }
 
         @Deprecated
@@ -178,7 +200,18 @@ class MethodInvocationHandler implements InvocationHandler {
                                       Map<String, String> implicitParameterProviderMap,
                                       Map<Integer, String> indexToPathVariableMap,
                                       Integer requestBodyParamIndex) {
-            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, requestBodyParamIndex, null);
+            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, requestBodyParamIndex, null, null);
+        }
+
+        @Deprecated
+        public MethodExecutionContext(MethodExecutor methodExecutor, ResultExtractor<T> resultExtractor,
+                                      Map<Integer, String> indexToParamMap,
+                                      Map<String, String> constImplicitParamMap,
+                                      Map<String, String> implicitParameterProviderMap,
+                                      Map<Integer, String> indexToPathVariableMap,
+                                      Integer requestBodyParamIndex,
+                                      Integer mapParamIndex) {
+            this(methodExecutor, resultExtractor, indexToParamMap, constImplicitParamMap, implicitParameterProviderMap, indexToPathVariableMap, requestBodyParamIndex, mapParamIndex, null);
         }
 
         public MethodExecutionContext(MethodExecutor methodExecutor, ResultExtractor<T> resultExtractor,
@@ -187,7 +220,8 @@ class MethodInvocationHandler implements InvocationHandler {
                                       Map<String, String> implicitParameterProviderMap,
                                       Map<Integer, String> indexToPathVariableMap,
                                       Integer requestBodyParamIndex,
-                                      Integer mapParamIndex) {
+                                      Integer mapParamIndex,
+                                      Integer beanParamIndex) {
             this.methodExecutor = methodExecutor;
             this.resultExtractor = resultExtractor;
             this.indexToParamMap = indexToParamMap;
@@ -196,6 +230,7 @@ class MethodInvocationHandler implements InvocationHandler {
             this.indexToPathVariableMap = indexToPathVariableMap;
             this.requestBodyParamIndex = requestBodyParamIndex;
             this.mapParamIndex = mapParamIndex;
+            this.beanParamIndex = beanParamIndex;
         }
 
 
