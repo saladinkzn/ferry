@@ -2,11 +2,12 @@ package ru.shadam.ferry.analyze.impl;
 
 import ru.shadam.ferry.analyze.InterfaceContext;
 import ru.shadam.ferry.analyze.MethodContext;
+import ru.shadam.ferry.util.MoreObjects;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
+import ru.shadam.ferry.util.MoreObjects;
 
 /**
  * @author sala
@@ -31,12 +32,12 @@ public class DefaultMethodContext implements MethodContext {
         this.method = method;
         this.indexToPathVariableMap = indexToPathVariableMap;
         this.beanParameterIndex = beanParameterIndex;
-        this.interfaceContext = Objects.requireNonNull(interfaceContext);
-        this.params = Objects.requireNonNull(params);
-        this.indexToParamMap = Objects.requireNonNull(indexToParamMap);
-        this.returnType = Objects.requireNonNull(returnType);
-        this.constImplicitParams = Objects.requireNonNull(constImplicitParams);
-        this.providedImplicitParams = Objects.requireNonNull(providedImplicitParams);
+        this.interfaceContext = MoreObjects.requireNonNull(interfaceContext);
+        this.params = MoreObjects.requireNonNull(params);
+        this.indexToParamMap = MoreObjects.requireNonNull(indexToParamMap);
+        this.returnType = MoreObjects.requireNonNull(returnType);
+        this.constImplicitParams = MoreObjects.requireNonNull(constImplicitParams);
+        this.providedImplicitParams = MoreObjects.requireNonNull(providedImplicitParams);
         this.requestBodyIndex = requestBodyIndex;
         this.mapParameterIndex = mapParameterIndex;
     }

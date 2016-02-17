@@ -7,18 +7,18 @@ buildscript {
     }
 }
 
-project.ext {
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
-}
-
 subprojects { project ->
     // Apply the java plugin to add support for Java
     apply plugin: 'java'
 
-    project.ext {
-        sourceCompatibility = '1.7'
-        targetCompatibility = '1.7'
+    compileJava {
+        sourceCompatibility = '1.6'
+        targetCompatibility = '1.6'
+    }
+
+    compileTestJava {
+        sourceCompatibility = '1.6'
+        targetCompatibility = '1.6'
     }
 
     repositories {
@@ -67,5 +67,5 @@ project(':ferry-spring') {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+    gradleVersion = '2.11'
 }

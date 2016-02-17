@@ -1,7 +1,8 @@
 package ru.shadam.ferry.factory.converter;
 
+import ru.shadam.ferry.util.MoreObjects;
+
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author sala
@@ -10,7 +11,7 @@ public class CompositeRequestBodyConverter implements RequestBodyConverter {
     private final List<RequestBodyConverter> converters;
 
     public CompositeRequestBodyConverter(List<RequestBodyConverter> converters) {
-        Objects.requireNonNull(converters);
+        MoreObjects.requireNonNull(converters);
         this.converters = converters;
     }
 

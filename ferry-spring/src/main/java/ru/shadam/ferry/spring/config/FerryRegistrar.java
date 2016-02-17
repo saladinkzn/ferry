@@ -91,7 +91,7 @@ public class FerryRegistrar implements ImportBeanDefinitionRegistrar, ResourceLo
                 = new FerryCandidateProvider(environment);
 
 
-        final List<BeanDefinition> candidates = new ArrayList<>();
+        final List<BeanDefinition> candidates = new ArrayList<BeanDefinition>();
         for (String basePackage : basePackages) {
             candidates.addAll(classPathScanningCandidateComponentProvider.findCandidateComponents(basePackage));
         }

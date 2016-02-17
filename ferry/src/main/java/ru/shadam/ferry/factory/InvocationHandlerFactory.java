@@ -14,6 +14,7 @@ import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
 import ru.shadam.ferry.factory.result.UnsupportedTypeException;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
+import ru.shadam.ferry.util.MoreObjects;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -54,9 +55,9 @@ public class InvocationHandlerFactory {
                                     Map<String, ImplicitParameterProvider> implicitParameterProviderMap,
                                     RequestBodyConverter requestBodyConverter) {
         this.resultExtractorFactory = resultExtractorFactory;
-        Objects.requireNonNull(methodExecutorFactory);
-        Objects.requireNonNull(implicitParameterProviderMap);
-        Objects.requireNonNull(requestBodyConverter);
+        MoreObjects.requireNonNull(methodExecutorFactory);
+        MoreObjects.requireNonNull(implicitParameterProviderMap);
+        MoreObjects.requireNonNull(requestBodyConverter);
         this.methodExecutorFactory = methodExecutorFactory;
         this.implicitParameterProviderMap = implicitParameterProviderMap;
         this.requestBodyConverter = requestBodyConverter;
@@ -68,7 +69,7 @@ public class InvocationHandlerFactory {
         //
         final InterfaceContext interfaceContext = getInterfaceContext(clazz);
         //
-        Map<Method, MethodInvocationHandler.MethodExecutionContext<?>> methodExecutionContextMap = new HashMap<>();
+        Map<Method, MethodInvocationHandler.MethodExecutionContext<?>> methodExecutionContextMap = new HashMap<Method, MethodInvocationHandler.MethodExecutionContext<?>>();
         final Method[] methods = clazz.getMethods();
         for(Method method: methods) {
             final MethodContext methodContext = getMethodContext(interfaceContext, method);
@@ -81,7 +82,7 @@ public class InvocationHandlerFactory {
     private <T> MethodInvocationHandler.MethodExecutionContext<T> getMethodExecutionContext(MethodContext methodContext) throws UnsupportedTypeException {
         final MethodExecutor requestExecutor = methodExecutorFactory.getRequestExecutor(methodContext);
         final ResultExtractor<T> resultExtractor = resultExtractorFactory.getResultExtractor(methodContext);
-        return new MethodInvocationHandler.MethodExecutionContext<>(requestExecutor, resultExtractor,
+        return new MethodInvocationHandler.MethodExecutionContext<T>(requestExecutor, resultExtractor,
                 methodContext.indexToParamMap(),
                 methodContext.constImplicitParams(),
                 methodContext.providedImplicitParams(),
@@ -114,8 +115,8 @@ public class InvocationHandlerFactory {
                 clazz.getAnnotation(ImplicitParams.class),
                 clazz.getAnnotation(ImplicitParam.class)
         );
-        final Map<String, String> constImplicitParams = new HashMap<>();
-        final Map<String, String> providedImplicitParams = new HashMap<>();
+        final Map<String, String> constImplicitParams = new HashMap<String, String>();
+        final Map<String, String> providedImplicitParams = new HashMap<String, String>();
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         return new DefaultInterfaceContext(baseUrl, defaultMethod, constImplicitParams, providedImplicitParams, clazz);
     }
@@ -139,9 +140,9 @@ public class InvocationHandlerFactory {
             httpMethod = methodAnnotation.value();
         }
         //
-        final LinkedHashSet<String> params = new LinkedHashSet<>();
-        final Map<Integer, String> indexToNameMap = new LinkedHashMap<>();
-        final Map<Integer, String> indexToPathVariableMap = new HashMap<>();
+        final LinkedHashSet<String> params = new LinkedHashSet<String>();
+        final Map<Integer, String> indexToNameMap = new LinkedHashMap<Integer, String>();
+        final Map<Integer, String> indexToPathVariableMap = new HashMap<Integer, String>();
         final Type[] genericParameterTypes = method.getGenericParameterTypes();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Integer requestBodyIndex = null;
@@ -194,8 +195,8 @@ public class InvocationHandlerFactory {
                 method.getAnnotation(ImplicitParams.class), method.getAnnotation(ImplicitParam.class)
         );
 
-        final Map<String, String> constImplicitParams = new HashMap<>(interfaceContext.constImplicitParams());
-        final Map<String, String> providedImplicitParams = new HashMap<>(interfaceContext.providedImplicitParams());
+        final Map<String, String> constImplicitParams = new HashMap<String, String>(interfaceContext.constImplicitParams());
+        final Map<String, String> providedImplicitParams = new HashMap<String, String>(interfaceContext.providedImplicitParams());
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         //
 
@@ -224,7 +225,7 @@ public class InvocationHandlerFactory {
             }
         }
         //
-        Stack<Type> stack = new Stack<>();
+        Stack<Type> stack = new Stack<Type>();
         stack.push(context);
         while (!stack.isEmpty()) {
             final Type type = stack.pop();
@@ -284,7 +285,7 @@ public class InvocationHandlerFactory {
     }
 
     private static Map<String, Type> typeVariableToClassMap(ParameterizedType declaringType) {
-        final Map<String, Type> typeVariableClassMap = new HashMap<>();
+        final Map<String, Type> typeVariableClassMap = new HashMap<String, Type>();
         final Type[] actualTypeArguments = declaringType.getActualTypeArguments();
         final TypeVariable<?>[] typeParameters = ((Class<?>) declaringType.getRawType()).getTypeParameters();
         assert actualTypeArguments.length == typeParameters.length;
@@ -300,11 +301,11 @@ public class InvocationHandlerFactory {
             implicitParamList = Arrays.asList(implicitParams.value());
         } else {
             if(implicitParam != null) {
-                final ArrayList<ImplicitParam> list = new ArrayList<>();
+                final ArrayList<ImplicitParam> list = new ArrayList<ImplicitParam>();
                 list.add(implicitParam);
                 implicitParamList = list;
             } else {
-                implicitParamList = new ArrayList<>();
+                implicitParamList = new ArrayList<ImplicitParam>();
             }
         }
         return implicitParamList;

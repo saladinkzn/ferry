@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
  */
 public class CoreResultExtractorFactory implements ResultExtractorFactory {
 
-    private static final StringExtractor<?> STRING_EXTRACTOR = new StringExtractor<>();
+    private static final StringExtractor<?> STRING_EXTRACTOR = new StringExtractor<Object>();
 
     @Override
     public <T> ResultExtractor<T> getResultExtractor(MethodContext methodContext) throws UnsupportedTypeException {
@@ -34,14 +34,20 @@ public class CoreResultExtractorFactory implements ResultExtractorFactory {
         @Override
         public T extractResponse(ResponseWrapper responseWrapper) throws IOException {
             final StringBuilder responseBuilder = new StringBuilder();
-            try(final InputStreamReader inputStreamReader = new InputStreamReader(responseWrapper.getInputStream())) {
-                try(final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+            final InputStreamReader inputStreamReader = new InputStreamReader(responseWrapper.getInputStream());
+            try {
+                final BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                try {
                     String line;
                     while ((line = bufferedReader.readLine()) != null) {
                         responseBuilder.append(line);
                     }
                     return (T)responseBuilder.toString();
+                } finally {
+                    bufferedReader.close();
                 }
+            } finally {
+                inputStreamReader.close();
             }
         }
     }

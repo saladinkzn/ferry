@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class MethodInvocationHandlerTest {
     private MethodExecutor methodExecutor;
-    private ResultExtractor<?> resultExtractor;
+    private ResultExtractor<Object> resultExtractor;
 
     @Before
     public void setUp() {
@@ -33,7 +33,7 @@ public class MethodInvocationHandlerTest {
         final Method testMethod = TestInterface.class.getMethod("testMethod");
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                 testMethod,
-                new MethodInvocationHandler.MethodExecutionContext<>(
+                new MethodInvocationHandler.MethodExecutionContext<Object>(
                         methodExecutor,
                         resultExtractor,
                         ImmutableMap.of(0, "param1", 1, "param2"),
@@ -55,7 +55,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 Maps.<Integer, String>newHashMap(),
@@ -76,7 +76,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
@@ -103,7 +103,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
@@ -135,7 +135,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
@@ -158,7 +158,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
@@ -186,7 +186,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 ImmutableMap.<Integer, String>of(),
@@ -216,7 +216,7 @@ public class MethodInvocationHandlerTest {
         final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
                 ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
                         method,
-                        new MethodInvocationHandler.MethodExecutionContext<>(
+                        new MethodInvocationHandler.MethodExecutionContext<Object>(
                                 methodExecutor,
                                 resultExtractor,
                                 ImmutableMap.<Integer, String>of(),

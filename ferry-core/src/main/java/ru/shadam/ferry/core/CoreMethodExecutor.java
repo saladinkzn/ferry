@@ -52,8 +52,11 @@ public class CoreMethodExecutor implements MethodExecutor {
         final HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(paramBuilder.toString()).openConnection();
         httpURLConnection.setRequestMethod(method);
         if(requestBody != null) {
-            try(final OutputStreamWriter outputStreamWriter = new OutputStreamWriter(httpURLConnection.getOutputStream())) {
+            final OutputStreamWriter outputStreamWriter = new OutputStreamWriter(httpURLConnection.getOutputStream());
+            try {
                 outputStreamWriter.write(requestBody);
+            } finally {
+                outputStreamWriter.close();
             }
         }
         return new DefaultResponseWrapper(httpURLConnection.getInputStream());

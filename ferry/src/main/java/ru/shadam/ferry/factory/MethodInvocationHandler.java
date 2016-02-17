@@ -8,6 +8,7 @@ import ru.shadam.ferry.factory.response.ResponseWrapper;
 import ru.shadam.ferry.factory.result.ResultExtractor;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
 import ru.shadam.ferry.implicit.ImplicitParameterWithNameProvider;
+import ru.shadam.ferry.util.MoreObjects;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -19,7 +20,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 
 /**
@@ -33,8 +33,8 @@ class MethodInvocationHandler implements InvocationHandler {
     private final RequestBodyConverter requestBodyConverter;
 
     public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ? extends ImplicitParameterProvider> providerMap) {
-        Objects.requireNonNull(methodExecutionContextMap);
-        Objects.requireNonNull(providerMap);
+        MoreObjects.requireNonNull(methodExecutionContextMap);
+        MoreObjects.requireNonNull(providerMap);
         this.methodExecutionContextMap = methodExecutionContextMap;
         this.providerMap = providerMap;
         this.requestBodyConverter = new RequestBodyConverter() {
@@ -51,9 +51,9 @@ class MethodInvocationHandler implements InvocationHandler {
     }
 
     public MethodInvocationHandler(Map<Method, MethodExecutionContext<?>> methodExecutionContextMap, Map<String, ? extends ImplicitParameterProvider> providerMap, RequestBodyConverter requestBodyConverter) {
-        Objects.requireNonNull(methodExecutionContextMap);
-        Objects.requireNonNull(providerMap);
-        Objects.requireNonNull(requestBodyConverter);
+        MoreObjects.requireNonNull(methodExecutionContextMap);
+        MoreObjects.requireNonNull(providerMap);
+        MoreObjects.requireNonNull(requestBodyConverter);
         this.methodExecutionContextMap = methodExecutionContextMap;
         this.providerMap = providerMap;
         this.requestBodyConverter = requestBodyConverter;
@@ -78,7 +78,7 @@ class MethodInvocationHandler implements InvocationHandler {
         final Map<String, String> implicitParameterProviderMap = methodExecutionContext.implicitParameterProviderMap;
         final Map<Integer, String> indexToPathVariableMap = methodExecutionContext.indexToPathVariableMap;
         //
-        final Map<String, Object> paramToValueMap = new LinkedHashMap<>();
+        final Map<String, Object> paramToValueMap = new LinkedHashMap<String, Object>();
         for(Map.Entry<String, String> implicitParamEntry : constImplicitParamMap.entrySet()) {
             final String paramName = implicitParamEntry.getKey();
             final String value = implicitParamEntry.getValue();
@@ -124,7 +124,7 @@ class MethodInvocationHandler implements InvocationHandler {
             }
             paramToValueMap.put(paramName, value);
         }
-        final Map<String, Object> pathToVariableMap = new HashMap<>();
+        final Map<String, Object> pathToVariableMap = new HashMap<String, Object>();
         for (Map.Entry<Integer, String> indexToPathVariable: indexToPathVariableMap.entrySet()) {
             final Integer index = indexToPathVariable.getKey();
             final String pathVariable = indexToPathVariable.getValue();
@@ -165,9 +165,11 @@ class MethodInvocationHandler implements InvocationHandler {
                     paramToValueMap.put(name, value);
                 }
             } catch (IntrospectionException iex) {
-                logger.error("An error has occured while introspecting", iex);
-            } catch (IllegalAccessException | InvocationTargetException mcEx) {
-                logger.error("An error has occurred while calling getter", mcEx);
+                logger.error("An exception has occurred while introspecting", iex);
+            } catch (IllegalAccessException mcEx) {
+                logger.error("An exception has occurred while calling getter", mcEx);
+            } catch (InvocationTargetException mcEx) {
+                logger.error("An exception has occurred while calling getter", mcEx);
             }
         }
         final MethodExecutor methodExecutor = methodExecutionContext.methodExecutor;
