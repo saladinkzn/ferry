@@ -24,6 +24,7 @@ import java.util.*;
  */
 public class InvocationHandlerFactory {
     private static final Logger logger = LoggerFactory.getLogger(InvocationHandlerFactory.class);
+    public static final String DUPLICATE_MAP_PARAM_MESSAGE = "Duplicate @Param was found on Map instance. Only one Map @Param is allowed";
     //
     private final MethodExecutorFactory methodExecutorFactory;
     private final ResultExtractorFactory resultExtractorFactory;
@@ -85,7 +86,8 @@ public class InvocationHandlerFactory {
                 methodContext.constImplicitParams(),
                 methodContext.providedImplicitParams(),
                 methodContext.indexToPathVariableMap(),
-                methodContext.requestBodyIndex()
+                methodContext.requestBodyIndex(),
+                methodContext.mapParameterIndex()
         );
     }
 
@@ -139,17 +141,42 @@ public class InvocationHandlerFactory {
         final LinkedHashSet<String> params = new LinkedHashSet<>();
         final Map<Integer, String> indexToNameMap = new LinkedHashMap<>();
         final Map<Integer, String> indexToPathVariableMap = new HashMap<>();
+        final Type[] genericParameterTypes = method.getGenericParameterTypes();
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Integer requestBodyIndex = null;
+        Integer mapParameterIndex = null;
         for(int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++) {
             final Annotation[] parameterAnnotationArray = parameterAnnotations[paramIndex];
+            final Type genericParameterType = genericParameterTypes[paramIndex];
             for(Annotation annotation : parameterAnnotationArray) {
                 final Class<? extends Annotation> annotationType = annotation.annotationType();
                 if(annotationType.isAssignableFrom(Param.class)) {
                     final Param param = ((Param) annotation);
                     final String paramName = param.value();
-                    params.add(paramName);
-                    indexToNameMap.put(paramIndex, paramName);
+                    if("".equals(paramName)) {
+                        if(genericParameterType instanceof Class<?>) {
+                            if(Map.class.isAssignableFrom(((Class) genericParameterType))) {
+                                if(mapParameterIndex == null) {
+                                    mapParameterIndex = paramIndex;
+                                } else {
+                                    logger.warn(DUPLICATE_MAP_PARAM_MESSAGE);
+                                }
+                            }
+                        } else if (genericParameterType instanceof ParameterizedType) {
+                            if(Map.class.isAssignableFrom(((Class<?>) ((ParameterizedType) genericParameterType).getRawType()))) {
+                                if(mapParameterIndex == null) {
+                                    mapParameterIndex = paramIndex;
+                                } else {
+                                    logger.warn(DUPLICATE_MAP_PARAM_MESSAGE);
+                                }
+                            }
+                        } else {
+                            throw new IllegalStateException("Empty parameter name is supported only for classes derived from Map");
+                        }
+                    } else {
+                        params.add(paramName);
+                        indexToNameMap.put(paramIndex, paramName);
+                    }
                     break;
                 } else if(annotationType.isAssignableFrom(PathVariable.class)) {
                     final PathVariable pathVariable = ((PathVariable) annotation);
@@ -157,7 +184,7 @@ public class InvocationHandlerFactory {
                     indexToPathVariableMap.put(paramIndex, pathVariableName);
                     break;
                 } else if(annotationType.isAssignableFrom(RequestBody.class)) {
-                    if(requestBodyIndex == null) {
+                    if (requestBodyIndex == null) {
                         requestBodyIndex = paramIndex;
                     }
                 }
@@ -172,7 +199,7 @@ public class InvocationHandlerFactory {
         final Map<String, String> providedImplicitParams = new HashMap<>(interfaceContext.providedImplicitParams());
         fillImplicitParamMaps(implicitParamList, constImplicitParams, providedImplicitParams);
         //
-        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap, requestBodyIndex);
+        return new DefaultMethodContext(interfaceContext, url, httpMethod, params, indexToNameMap, returnType, constImplicitParams, providedImplicitParams, indexToPathVariableMap, requestBodyIndex, mapParameterIndex);
     }
 
     private static Type processMethodType(Method method, Class<?> context) {

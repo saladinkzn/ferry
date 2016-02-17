@@ -18,6 +18,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author sala
@@ -254,6 +255,19 @@ public class InvocationHandlerFactoryTest {
         }
     }
 
+    @Test
+    public void testMethodMapParam() throws Throwable {
+        final InterfaceContext interfaceContext = InvocationHandlerFactory.getInterfaceContext(RequestParamMapInterface.class);
+        final MethodContext methodContext1 = InvocationHandlerFactory.getMethodContext(interfaceContext, RequestParamMapInterface.class.getMethod("testMethod", String.class));
+        Assert.assertNull(methodContext1.mapParameterIndex());
+        //
+        final MethodContext methodContext2 = InvocationHandlerFactory.getMethodContext(interfaceContext, RequestParamMapInterface.class.getMethod("testMethod", String.class, Map.class));
+        Assert.assertEquals(1L, methodContext2.mapParameterIndex().longValue());
+
+        final MethodContext methodContext3 = InvocationHandlerFactory.getMethodContext(interfaceContext, RequestParamMapInterface.class.getMethod("testMethod", Properties.class));
+        Assert.assertEquals(0, methodContext3.mapParameterIndex().longValue());
+    }
+
     private interface EmptyInterface { }
 
     @Url("http://example.com")
@@ -351,5 +365,13 @@ public class InvocationHandlerFactoryTest {
 
     private interface C extends B<Long> {
         List<Object> getAll3();
+    }
+
+    private interface RequestParamMapInterface {
+        List<String> testMethod(@Param("requiredParam1") String requiredParam1);
+
+        List<String> testMethod(@Param("requiredParam1") String requiredParam1, @Param Map<String, Object> options);
+
+        List<String> testMethod(@Param Properties props);
     }
 }

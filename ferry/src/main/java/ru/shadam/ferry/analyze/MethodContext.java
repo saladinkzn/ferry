@@ -25,4 +25,6 @@ public interface MethodContext {
     Map<Integer,String> indexToPathVariableMap();
 
     Integer requestBodyIndex();
+
+    Integer mapParameterIndex();
 }
