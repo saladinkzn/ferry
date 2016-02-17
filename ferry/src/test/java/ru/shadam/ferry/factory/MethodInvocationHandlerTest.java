@@ -180,6 +180,37 @@ public class MethodInvocationHandlerTest {
         Assert.assertEquals(param, requestBody);
     }
 
+    @Test
+    public void testMapParameter() throws Throwable {
+        final Method method = TestInterface.class.getMethod("testMethod");
+        final MethodInvocationHandler methodInvocationHandler = new MethodInvocationHandler(
+                ImmutableMap.<Method, MethodInvocationHandler.MethodExecutionContext<?>>of(
+                        method,
+                        new MethodInvocationHandler.MethodExecutionContext<>(
+                                methodExecutor,
+                                resultExtractor,
+                                ImmutableMap.<Integer, String>of(),
+                                ImmutableMap.<String, String>of(),
+                                ImmutableMap.<String, String>of(),
+                                ImmutableMap.<Integer, String>of(),
+                                null,
+                                0
+                        )
+                ), ImmutableMap.<String, ImplicitParameterProvider>of()
+        );
+        final ImmutableMap<String, String> expected = ImmutableMap.of("param1", "value1", "param2", "value2");
+        final Object result = methodInvocationHandler.invoke(null, method, new Object[]{expected});
+        final ArgumentCaptor<Map> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+        Mockito.verify(methodExecutor, Mockito.only()).execute(
+                mapArgumentCaptor.capture(),
+                Mockito.anyMapOf(String.class, Object.class),
+                Mockito.anyString()
+        );
+        final Map params = mapArgumentCaptor.getValue();
+        Assert.assertEquals(expected, params);
+
+    }
+
     private interface TestInterface {
         void testMethod();
     }

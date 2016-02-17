@@ -23,8 +23,9 @@ public class DefaultMethodContext implements MethodContext {
     private final Map<String, String> providedImplicitParams;
     private final Map<Integer, String> indexToPathVariableMap;
     private final Integer requestBodyIndex;
+    private final Integer mapParameterIndex;
 
-    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams, Map<Integer, String> indexToPathVariableMap, Integer requestBodyIndex) {
+    public DefaultMethodContext(InterfaceContext interfaceContext, String url, String method, LinkedHashSet<String> params, Map<Integer, String> indexToParamMap, Type returnType, Map<String, String> constImplicitParams, Map<String, String> providedImplicitParams, Map<Integer, String> indexToPathVariableMap, Integer requestBodyIndex, Integer mapParameterIndex) {
         this.url = url;
         this.method = method;
         this.indexToPathVariableMap = indexToPathVariableMap;
@@ -35,6 +36,7 @@ public class DefaultMethodContext implements MethodContext {
         this.constImplicitParams = Objects.requireNonNull(constImplicitParams);
         this.providedImplicitParams = Objects.requireNonNull(providedImplicitParams);
         this.requestBodyIndex = requestBodyIndex;
+        this.mapParameterIndex = mapParameterIndex;
     }
 
     @Override
@@ -80,6 +82,11 @@ public class DefaultMethodContext implements MethodContext {
     @Override
     public Integer requestBodyIndex() {
         return requestBodyIndex;
+    }
+
+    @Override
+    public Integer mapParameterIndex() {
+        return mapParameterIndex;
     }
 
     @Override
