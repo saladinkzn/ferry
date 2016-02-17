@@ -3,5 +3,7 @@
 - [x] Path variables support
 - [x] Crud methods support (CrudRepository-like)
 - [ ] Javadoc improvement
-- [ ] Custom ResponseHandler interface to untie from HttpClient library
-- [ ] Spring integration
+- [x] Custom ResponseHandler interface to untie from HttpClient library
+- [x] Spring integration
+- [ ] @Param for maps and beans
+- [ ] Support of param conversions (for example: list to joined string)
