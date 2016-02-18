@@ -52,7 +52,7 @@ project(':ferry-simple') {
     dependencies {
         compile project(':ferry')
         compile 'org.apache.httpcomponents:httpclient:4.5.1'
-        compile 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.6.5'
     }
 }
 
