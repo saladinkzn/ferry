@@ -9,11 +9,11 @@ import org.mockito.Mockito;
 import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.response.ResponseWrapper;
 import ru.shadam.ferry.factory.result.ResultExtractor;
+import ru.shadam.ferry.util.MoreStandardCharsetes;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ public class ClientImplementationFactoryTest {
         final ResponseWrapper httpResponse = Mockito.mock(ResponseWrapper.class);
         //
         final String responseJson = "[ 1, 2, 3]";
-        final InputStream byteArrayInputStream = new ByteArrayInputStream(responseJson.getBytes(StandardCharsets.UTF_8));
+        final InputStream byteArrayInputStream = new ByteArrayInputStream(responseJson.getBytes(MoreStandardCharsetes.UTF_8));
         Mockito.when(httpResponse.getInputStream()).thenReturn(byteArrayInputStream);
         //
         final List<Integer> list = listResponseHandler.extractResponse(httpResponse);

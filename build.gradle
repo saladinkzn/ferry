@@ -7,18 +7,18 @@ buildscript {
     }
 }
 
-project.ext {
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
-}
-
 subprojects { project ->
     // Apply the java plugin to add support for Java
     apply plugin: 'java'
 
-    project.ext {
-        sourceCompatibility = '1.7'
-        targetCompatibility = '1.7'
+    compileJava {
+        sourceCompatibility = '1.6'
+        targetCompatibility = '1.6'
+    }
+
+    compileTestJava {
+        sourceCompatibility = '1.6'
+        targetCompatibility = '1.6'
     }
 
     repositories {
@@ -52,7 +52,7 @@ project(':ferry-simple') {
     dependencies {
         compile project(':ferry')
         compile 'org.apache.httpcomponents:httpclient:4.5.1'
-        compile 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.6.5'
     }
 }
 
@@ -67,5 +67,5 @@ project(':ferry-spring') {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+    gradleVersion = '2.11'
 }

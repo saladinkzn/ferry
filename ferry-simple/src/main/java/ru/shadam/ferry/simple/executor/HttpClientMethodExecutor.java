@@ -12,9 +12,9 @@ import ru.shadam.ferry.factory.response.DefaultResponseWrapper;
 import ru.shadam.ferry.factory.response.ResponseWrapper;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Objects;
+import ru.shadam.ferry.util.MoreObjects;
+import ru.shadam.ferry.util.MoreStandardCharsetes;
 
 /**
  * @author sala
@@ -28,9 +28,9 @@ public class HttpClientMethodExecutor implements MethodExecutor {
 
 
     public HttpClientMethodExecutor(HttpClient httpClient, String method, String url) {
-        this.httpClient = Objects.requireNonNull(httpClient);
-        this.method = Objects.requireNonNull(method);
-        this.url = Objects.requireNonNull(url);
+        this.httpClient = MoreObjects.requireNonNull(httpClient);
+        this.method = MoreObjects.requireNonNull(method);
+        this.url = MoreObjects.requireNonNull(url);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class HttpClientMethodExecutor implements MethodExecutor {
             requestBuilder.addParameter(parameterKey, String.valueOf(parameterEntry.getValue()));
         }
         if(requestBody != null) {
-            final StringEntity stringEntity = new StringEntity(requestBody, StandardCharsets.UTF_8);
+            final StringEntity stringEntity = new StringEntity(requestBody, MoreStandardCharsetes.UTF_8);
             requestBuilder.setEntity(stringEntity);
         }
         return requestBuilder.build();

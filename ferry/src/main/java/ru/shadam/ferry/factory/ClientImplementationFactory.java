@@ -7,11 +7,11 @@ import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 import ru.shadam.ferry.factory.result.ResultExtractorFactory;
 import ru.shadam.ferry.factory.result.UnsupportedTypeException;
 import ru.shadam.ferry.implicit.ImplicitParameterProvider;
+import ru.shadam.ferry.util.MoreObjects;
 
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Implementation proxy factory.
@@ -28,7 +28,7 @@ public class ClientImplementationFactory {
     private static final Logger logger = LoggerFactory.getLogger(ClientImplementationFactory.class);
     //
     private final InvocationHandlerFactory invocationHandlerFactory;
-    private final Map<String, ImplicitParameterProvider> implicitParameterProviders = new HashMap<>();
+    private final Map<String, ImplicitParameterProvider> implicitParameterProviders = new HashMap<String, ImplicitParameterProvider>();
 
     public ClientImplementationFactory(MethodExecutorFactory methodExecutorFactory, ResultExtractorFactory resultExtractorFactory, RequestBodyConverter requestBodyConverter) {
         this.invocationHandlerFactory = new InvocationHandlerFactory(methodExecutorFactory, resultExtractorFactory, implicitParameterProviders, requestBodyConverter);
@@ -44,8 +44,8 @@ public class ClientImplementationFactory {
 
     public void registerImplicitParameterProvider(String name, ImplicitParameterProvider provider) {
         logger.debug("Registering implicit parameter provider name: {}, provider: {}", name, provider);
-        Objects.requireNonNull(name);
-        Objects.requireNonNull(provider);
+        MoreObjects.requireNonNull(name);
+        MoreObjects.requireNonNull(provider);
         implicitParameterProviders.put(name, provider);
     }
 }

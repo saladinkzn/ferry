@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shadam.ferry.factory.converter.RequestBodyConverter;
 
-import java.util.Objects;
+import ru.shadam.ferry.util.MoreObjects;
 
 /**
  * @author sala
@@ -17,7 +17,7 @@ public class ObjectMapperRequestBodyConverter implements RequestBodyConverter {
     private final ObjectMapper objectMapper;
 
     public ObjectMapperRequestBodyConverter(ObjectMapper objectMapper) {
-        Objects.requireNonNull(objectMapper);
+        MoreObjects.requireNonNull(objectMapper);
         this.objectMapper = objectMapper;
     }
 

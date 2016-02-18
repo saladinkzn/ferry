@@ -7,7 +7,7 @@ import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.executor.MethodExecutor;
 import ru.shadam.ferry.factory.executor.MethodExecutorFactory;
 
-import java.util.Objects;
+import ru.shadam.ferry.util.MoreObjects;
 
 /**
  * @author sala
@@ -18,12 +18,12 @@ public class HttpClientMethodExecutorFactory implements MethodExecutorFactory {
     private final HttpClient httpClient;
 
     public HttpClientMethodExecutorFactory(HttpClient httpClient) {
-        this.httpClient = Objects.requireNonNull(httpClient);
+        this.httpClient = MoreObjects.requireNonNull(httpClient);
     }
 
     @Override
     public MethodExecutor getRequestExecutor(MethodContext methodContext) {
-        Objects.requireNonNull(methodContext);
+        MoreObjects.requireNonNull(methodContext);
         //
         logger.debug("Getting request executor for method context: {}", methodContext);
         //

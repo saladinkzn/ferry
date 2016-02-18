@@ -7,10 +7,10 @@ import org.mockito.Mockito;
 import ru.shadam.ferry.analyze.MethodContext;
 import ru.shadam.ferry.factory.response.ResponseWrapper;
 import ru.shadam.ferry.factory.result.ResultExtractor;
+import ru.shadam.ferry.util.MoreStandardCharsetes;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -21,7 +21,7 @@ public class ObjectMapperResponseHandlerTest {
     @Test
     public void handleResponse() throws Exception {
         final ObjectMapper objectMapper = new ObjectMapper();
-        final ObjectMapperResponseHandler<List> responseHandler = new ObjectMapperResponseHandler<>(objectMapper, List.class);
+        final ObjectMapperResponseHandler<List> responseHandler = new ObjectMapperResponseHandler<List>(objectMapper, List.class);
         final ResponseWrapper response = getResponseWrapper("[\"abc\", \"def\"]");
         final List list = responseHandler.extractResponse(response);
         Assert.assertNotNull(list);
@@ -56,7 +56,7 @@ public class ObjectMapperResponseHandlerTest {
 
     private ResponseWrapper getResponseWrapper(String str) {
         final ResponseWrapper responseWrapper = Mockito.mock(ResponseWrapper.class);
-        Mockito.when(responseWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)));
+        Mockito.when(responseWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(str.getBytes(MoreStandardCharsetes.UTF_8)));
         return responseWrapper;
     }
 
